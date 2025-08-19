@@ -1,4 +1,5 @@
 import { Link } from '@inertiajs/react';
+import { ProfileInfo } from './profile-info';
 import { Avatar, AvatarImage } from './ui/avatar';
 
 const menuList = [
@@ -79,7 +80,7 @@ export function LeftBar() {
                         <span className="text-sm text-textCustom">@n1n5</span>
                     </div>
                 </div>
-                <div className="hidden cursor-pointer font-bold text-textDarkMode 2xl:block">...</div>
+                <ProfileInfo />
             </div>
         </div>
     );

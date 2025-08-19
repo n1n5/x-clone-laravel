@@ -4,7 +4,10 @@ use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
-Route::get('/', [AuthenticatedSessionController::class, 'create'])->name('login');
+Route::middleware('guest')->group(function () {
+    Route::get('/', [AuthenticatedSessionController::class, 'create'])
+        ->name('login');
+});
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('home', function () {
