@@ -1,23 +1,14 @@
-import { type BreadcrumbItem, type SharedData } from '@/types';
+import { type SharedData } from '@/types';
 import { Transition } from '@headlessui/react';
 import { Head, Link, useForm, usePage } from '@inertiajs/react';
 import { FormEventHandler } from 'react';
 
-import DeleteUser from '@/components/delete-user';
-import HeadingSmall from '@/components/heading-small';
+import DeleteUser from '@/components/app/delete-user';
 import InputError from '@/components/input-error';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import AppLayout from '@/layouts/app-layout';
 import SettingsLayout from '@/layouts/settings/layout';
-
-const breadcrumbs: BreadcrumbItem[] = [
-    {
-        title: 'Profile settings',
-        href: '/settings/profile',
-    },
-];
 
 type ProfileForm = {
     name: string;
@@ -43,15 +34,18 @@ export default function Profile({ mustVerifyEmail, status }: { mustVerifyEmail: 
     };
 
     return (
-        <AppLayout breadcrumbs={breadcrumbs}>
+        <div>
             <Head title="Profile settings" />
 
             <SettingsLayout>
                 <div className="space-y-6">
-                    <HeadingSmall title="Profile information" description="Update your name, username and email address" />
+                    <div>
+                        <h3 className="font-bold text-textCustomDark">Profile information</h3>
+                        <span className="text-sm text-textCustom">Update your name, username and email address.</span>
+                    </div>
 
                     <form onSubmit={submit} className="space-y-6">
-                        <div className="grid gap-2">
+                        <div className="grid gap-2 text-textCustom">
                             <Label htmlFor="name">Name</Label>
 
                             <Input
@@ -67,7 +61,7 @@ export default function Profile({ mustVerifyEmail, status }: { mustVerifyEmail: 
                             <InputError className="mt-2" message={errors.name} />
                         </div>
 
-                        <div className="grid gap-2">
+                        <div className="grid gap-2 text-textCustom">
                             <Label htmlFor="username">Username</Label>
 
                             <Input
@@ -83,7 +77,7 @@ export default function Profile({ mustVerifyEmail, status }: { mustVerifyEmail: 
                             <InputError className="mt-2" message={errors.username} />
                         </div>
 
-                        <div className="grid gap-2">
+                        <div className="grid gap-2 text-textCustom">
                             <Label htmlFor="email">Email address</Label>
 
                             <Input
@@ -101,8 +95,8 @@ export default function Profile({ mustVerifyEmail, status }: { mustVerifyEmail: 
                         </div>
 
                         {mustVerifyEmail && auth.user.email_verified_at === null && (
-                            <div>
-                                <p className="-mt-4 text-sm text-muted-foreground">
+                            <div className="text-textCustom">
+                                <p className="text-muted-foreground -mt-4 text-sm">
                                     Your email address is unverified.{' '}
                                     <Link
                                         href={route('verification.send')}
@@ -122,8 +116,10 @@ export default function Profile({ mustVerifyEmail, status }: { mustVerifyEmail: 
                             </div>
                         )}
 
-                        <div className="flex items-center gap-4">
-                            <Button disabled={processing}>Save</Button>
+                        <div className="flex items-center gap-4 text-textCustomDark">
+                            <Button disabled={processing} className="cursor-pointer border-[1px] border-textCustom">
+                                Save
+                            </Button>
 
                             <Transition
                                 show={recentlySuccessful}
@@ -132,7 +128,7 @@ export default function Profile({ mustVerifyEmail, status }: { mustVerifyEmail: 
                                 leave="transition ease-in-out"
                                 leaveTo="opacity-0"
                             >
-                                <p className="text-sm text-neutral-600">Saved</p>
+                                <p className="text-sm text-textCustom">Saved</p>
                             </Transition>
                         </div>
                     </form>
@@ -140,6 +136,6 @@ export default function Profile({ mustVerifyEmail, status }: { mustVerifyEmail: 
 
                 <DeleteUser />
             </SettingsLayout>
-        </AppLayout>
+        </div>
     );
 }

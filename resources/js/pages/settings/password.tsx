@@ -1,22 +1,12 @@
 import InputError from '@/components/input-error';
-import AppLayout from '@/layouts/app-layout';
 import SettingsLayout from '@/layouts/settings/layout';
-import { type BreadcrumbItem } from '@/types';
 import { Transition } from '@headlessui/react';
 import { Head, useForm } from '@inertiajs/react';
 import { FormEventHandler, useRef } from 'react';
 
-import HeadingSmall from '@/components/heading-small';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-
-const breadcrumbs: BreadcrumbItem[] = [
-    {
-        title: 'Password settings',
-        href: '/settings/password',
-    },
-];
 
 export default function Password() {
     const passwordInput = useRef<HTMLInputElement>(null);
@@ -49,15 +39,18 @@ export default function Password() {
     };
 
     return (
-        <AppLayout breadcrumbs={breadcrumbs}>
+        <div>
             <Head title="Password settings" />
 
             <SettingsLayout>
                 <div className="space-y-6">
-                    <HeadingSmall title="Update password" description="Ensure your account is using a long, random password to stay secure" />
+                    <div>
+                        <h3 className="font-bold text-textCustomDark">Update password</h3>
+                        <span className="text-sm text-textCustom">Ensure your account is using a long, random password to stay secure.</span>
+                    </div>
 
                     <form onSubmit={updatePassword} className="space-y-6">
-                        <div className="grid gap-2">
+                        <div className="grid gap-2 text-textCustom">
                             <Label htmlFor="current_password">Current password</Label>
 
                             <Input
@@ -74,7 +67,7 @@ export default function Password() {
                             <InputError message={errors.current_password} />
                         </div>
 
-                        <div className="grid gap-2">
+                        <div className="grid gap-2 text-textCustom">
                             <Label htmlFor="password">New password</Label>
 
                             <Input
@@ -91,7 +84,7 @@ export default function Password() {
                             <InputError message={errors.password} />
                         </div>
 
-                        <div className="grid gap-2">
+                        <div className="grid gap-2 text-textCustom">
                             <Label htmlFor="password_confirmation">Confirm password</Label>
 
                             <Input
@@ -107,8 +100,10 @@ export default function Password() {
                             <InputError message={errors.password_confirmation} />
                         </div>
 
-                        <div className="flex items-center gap-4">
-                            <Button disabled={processing}>Save password</Button>
+                        <div className="flex items-center gap-4 text-textCustomDark">
+                            <Button disabled={processing} className="cursor-pointer border-[1px] border-textCustom">
+                                Save password
+                            </Button>
 
                             <Transition
                                 show={recentlySuccessful}
@@ -117,12 +112,12 @@ export default function Password() {
                                 leave="transition ease-in-out"
                                 leaveTo="opacity-0"
                             >
-                                <p className="text-sm text-neutral-600">Saved</p>
+                                <p className="text-sm text-textCustom">Saved</p>
                             </Transition>
                         </div>
                     </form>
                 </div>
             </SettingsLayout>
-        </AppLayout>
+        </div>
     );
 }
