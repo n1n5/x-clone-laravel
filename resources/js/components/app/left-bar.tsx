@@ -1,4 +1,5 @@
-import { Link } from '@inertiajs/react';
+import { SharedData } from '@/types';
+import { Link, usePage } from '@inertiajs/react';
 import { ProfileInfo } from './profile-info';
 import { Avatar, AvatarImage } from './ui/avatar';
 
@@ -54,11 +55,23 @@ const menuList = [
 ];
 
 export function LeftBar() {
+    const { auth } = usePage<SharedData>().props;
+
+    const menuItems = menuList.map((item) => {
+        if (item.name === 'Profile' && auth.user) {
+            return {
+                ...item,
+                link: `/profile/${auth.user.username}`,
+            };
+        }
+        return item;
+    });
+
     return (
         <div className="sticky top-0 flex h-screen flex-col justify-between pt-2 pb-8">
             <div className="flex flex-col items-center gap-4 text-lg 2xl:items-start">
                 <div className="flex flex-col gap-4">
-                    {menuList.map((item) => (
+                    {menuItems.map((item) => (
                         <Link href={item.link} key={item.id} className="flex items-center gap-4 rounded-full p-2 hover:bg-hoverCustom">
                             <img src={`/icons/${item.icon}`} alt={item.name} width={24} height={24} />
                             <span className="hidden text-textDarkMode 2xl:inline">{item.name}</span>

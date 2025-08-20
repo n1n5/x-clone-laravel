@@ -21,6 +21,7 @@ return new class extends Migration
             $table->string('username');
             $table->string('cover_path', 1024)->nullable();
             $table->string('avatar_path', 1024)->nullable();
+            $table->text('about')->nullable();
             $table->timestamps();
         });
 

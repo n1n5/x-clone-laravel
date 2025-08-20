@@ -7,13 +7,13 @@ const menuList = [
     {
         id: 1,
         name: 'Profile settings',
-        icon: 'block.svg',
+        icon: 'settings.svg',
         link: '/settings/profile',
     },
     {
         id: 2,
         name: 'Logout',
-        icon: 'block.svg',
+        icon: 'logout.svg',
     },
 ];
 
