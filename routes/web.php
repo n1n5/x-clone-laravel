@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
+use App\Http\Controllers\PostController;
 use App\Http\Controllers\ProfilePageController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -16,6 +17,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     })->name('home');
 
     Route::get('/profile/{username}', [ProfilePageController::class, 'show'])->name('profile');
+
+    Route::get('/post', [PostController::class, 'create'])->name('post');
 });
 
 require __DIR__ . '/settings.php';

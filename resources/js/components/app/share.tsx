@@ -47,7 +47,7 @@ export function Share() {
                     type="text"
                     name="description"
                     placeholder="What's happening?"
-                    className="bg-transparent text-xl outline-none placeholder:text-textCustom"
+                    className="bg-transparent text-xl text-textDarkMode outline-none placeholder:text-textCustom"
                 />
                 {previewURL && (
                     <div className="relative overflow-hidden rounded-xl">

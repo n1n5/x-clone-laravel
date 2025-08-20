@@ -78,10 +78,12 @@ export function LeftBar() {
                         </Link>
                     ))}
                 </div>
-                <button className="flex h-12 w-12 cursor-pointer items-center justify-center rounded-full bg-hoverCustom 2xl:hidden">
+                <Link href="/post" className="flex h-12 w-12 cursor-pointer items-center justify-center rounded-full bg-hoverCustom 2xl:hidden">
                     <img src="/icons/post.svg" alt="Post" height={24} width={24} />
-                </button>
-                <button className="hidden cursor-pointer rounded-full bg-hoverCustom px-20 py-2 font-bold text-textDarkMode 2xl:block">Post</button>
+                </Link>
+                <Link href="/post" className="hidden cursor-pointer rounded-full bg-hoverCustom px-20 py-2 font-bold text-textDarkMode 2xl:block">
+                    Post
+                </Link>
             </div>
             <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
