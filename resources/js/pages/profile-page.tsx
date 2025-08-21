@@ -1,19 +1,63 @@
 import { Feed } from '@/components/app/feed';
 import { LeftBar } from '@/components/app/left-bar';
 import { RightBar } from '@/components/app/right-bar';
-import { Head, Link } from '@inertiajs/react';
+import { Head, Link, router } from '@inertiajs/react';
+import { useEffect, useRef, useState } from 'react';
 
 type ProfileProps = {
     user: {
+        id: number;
         name: string;
         username: string;
         about: string;
         created_at: string;
+        cover_path?: string | null;
     };
     is_own_profile: boolean;
 };
 
-export default function ProfilePage({ user, is_own_profile }: ProfileProps) {
+export default function ProfilePage({ user, is_own_profile, cover_path }: ProfileProps & { cover_path: string }) {
+    const [coverImage, setCoverImage] = useState(() => {
+        const path = cover_path || user.cover_path;
+        return path ? (path.startsWith('http') ? path : `/${path}`) : '/general/cover.jpg';
+    });
+    const fileInputRef = useRef<HTMLInputElement>(null);
+
+    useEffect(() => {
+        if (cover_path) {
+            const fullPath = cover_path.startsWith('http') ? cover_path : `/${cover_path}`;
+            setCoverImage(fullPath);
+            user.cover_path = fullPath;
+        } else {
+            setCoverImage('/general/cover.jpg');
+        }
+    }, [cover_path]);
+
+    const handleCoverImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = () => {
+            const formData = new FormData();
+            formData.append('cover_image', file);
+
+            router.post(`/profile/${user.username}/update-cover`, formData, {
+                forceFormData: true,
+                preserveScroll: true,
+                onError: (errors) => {
+                    console.error('Error uploading cover image:', errors);
+                    setCoverImage(user.cover_path || '/general/cover.jpg');
+                },
+            });
+        };
+        reader.readAsDataURL(file);
+    };
+
+    const triggerFileInput = () => {
+        fileInputRef.current?.click();
+    };
+
     return (
         <div className="mx-auto flex max-w-screen-md justify-between lg:max-w-screen-lg xl:max-w-screen-xl 2xl:max-w-screen-2xl">
             <div className="px-2 xs:px-4 2xl:px-8">
@@ -31,11 +75,14 @@ export default function ProfilePage({ user, is_own_profile }: ProfileProps) {
                     <div>
                         <div className="relative w-full">
                             <div className="group aspect-[3/1] w-full overflow-hidden">
-                                <img src="/general/cover.jpg" alt="Cover" height={200} width="auto" />
+                                <img src={coverImage} alt="Cover" height={200} width="auto" />
+                                <input type="file" ref={fileInputRef} className="hidden" accept="image/*" onChange={handleCoverImageChange} />
                                 {is_own_profile && (
                                     <button
                                         className="absolute top-2 right-2 cursor-pointer rounded-full bg-textDarkMode px-4 py-1 text-sm font-bold text-postInfo opacity-0 group-hover:opacity-50"
                                         id="edit-cover"
+                                        type="button"
+                                        onClick={triggerFileInput}
                                     >
                                         Edit
                                     </button>
