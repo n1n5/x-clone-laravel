@@ -19,6 +19,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/profile/{username}', [ProfilePageController::class, 'show'])->name('profile');
     Route::post('/profile/{username}/update-cover', [ProfilePageController::class, 'updateCover'])
         ->name('profile.update-cover');
+    Route::post('/profile/{username}/update-avatar', [ProfilePageController::class, 'updateAvatar'])
+        ->name('profile.update-avatar');
 
     Route::get('/post', [PostController::class, 'create'])->name('post');
 });

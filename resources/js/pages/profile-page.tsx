@@ -12,16 +12,24 @@ type ProfileProps = {
         about: string;
         created_at: string;
         cover_path?: string | null;
+        avatar_path?: string | null;
     };
     is_own_profile: boolean;
 };
 
-export default function ProfilePage({ user, is_own_profile, cover_path }: ProfileProps & { cover_path: string }) {
+export default function ProfilePage({ user, is_own_profile, cover_path, avatar_path }: ProfileProps & { cover_path: string; avatar_path: string }) {
     const [coverImage, setCoverImage] = useState(() => {
         const path = cover_path || user.cover_path;
         return path ? (path.startsWith('http') ? path : `/${path}`) : '/general/cover.jpg';
     });
-    const fileInputRef = useRef<HTMLInputElement>(null);
+
+    const [avatarImage, setAvatarImage] = useState(() => {
+        const path = avatar_path || user.avatar_path;
+        return path ? (path.startsWith('http') ? path : `/${path}`) : '/general/avatar.png';
+    });
+
+    const coverInputRef = useRef<HTMLInputElement>(null);
+    const avatarInputRef = useRef<HTMLInputElement>(null);
 
     useEffect(() => {
         if (cover_path) {
@@ -54,8 +62,33 @@ export default function ProfilePage({ user, is_own_profile, cover_path }: Profil
         reader.readAsDataURL(file);
     };
 
-    const triggerFileInput = () => {
-        fileInputRef.current?.click();
+    const triggerCoverInput = () => {
+        coverInputRef.current?.click();
+    };
+
+    const handleAvatarImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = () => {
+            const formData = new FormData();
+            formData.append('avatar_image', file);
+
+            router.post(`/profile/${user.username}/update-avatar`, formData, {
+                forceFormData: true,
+                preserveScroll: true,
+                onError: (errors) => {
+                    console.error('Error uploading avatar image:', errors);
+                    setAvatarImage(user.avatar_path || '/general/avatar.png');
+                },
+            });
+        };
+        reader.readAsDataURL(file);
+    };
+
+    const triggerAvatarInput = () => {
+        avatarInputRef.current?.click();
     };
 
     return (
@@ -76,24 +109,26 @@ export default function ProfilePage({ user, is_own_profile, cover_path }: Profil
                         <div className="relative w-full">
                             <div className="group aspect-[3/1] w-full overflow-hidden">
                                 <img src={coverImage} alt="Cover" height={200} width="auto" />
-                                <input type="file" ref={fileInputRef} className="hidden" accept="image/*" onChange={handleCoverImageChange} />
+                                <input type="file" ref={coverInputRef} className="hidden" accept="image/*" onChange={handleCoverImageChange} />
                                 {is_own_profile && (
                                     <button
                                         className="absolute top-2 right-2 cursor-pointer rounded-full bg-textDarkMode px-4 py-1 text-sm font-bold text-postInfo opacity-0 group-hover:opacity-50"
                                         id="edit-cover"
                                         type="button"
-                                        onClick={triggerFileInput}
+                                        onClick={triggerCoverInput}
                                     >
                                         Edit
                                     </button>
                                 )}
                             </div>
                             <div className="group absolute left-4 aspect-square w-1/5 -translate-y-1/2 overflow-hidden rounded-full border-4 border-postInfo bg-textCustom">
-                                <img src="/general/avatar.jpg" alt="Avatar" height={100} width={100} className="size-full object-cover" />
+                                <img src={avatarImage} alt="Avatar" height={100} width={100} className="size-full object-cover" />
+                                <input type="file" ref={avatarInputRef} className="hidden" accept="image/*" onChange={handleAvatarImageChange} />
                                 {is_own_profile && (
                                     <button
                                         className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 cursor-pointer rounded-full bg-textDarkMode px-4 py-1 text-sm font-bold text-postInfo opacity-0 group-hover:opacity-50"
-                                        id="edit-avatar"
+                                        type="button"
+                                        onClick={triggerAvatarInput}
                                     >
                                         Edit
                                     </button>
