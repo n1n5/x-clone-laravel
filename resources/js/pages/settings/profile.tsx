@@ -14,6 +14,7 @@ type ProfileForm = {
     name: string;
     username: string;
     email: string;
+    about: string;
 };
 
 export default function Profile({ mustVerifyEmail, status }: { mustVerifyEmail: boolean; status?: string }) {
@@ -23,6 +24,7 @@ export default function Profile({ mustVerifyEmail, status }: { mustVerifyEmail: 
         name: auth.user.name,
         username: auth.user.username as string,
         email: auth.user.email,
+        about: auth.user.about as string,
     });
 
     const submit: FormEventHandler = (e) => {
@@ -41,7 +43,7 @@ export default function Profile({ mustVerifyEmail, status }: { mustVerifyEmail: 
                 <div className="space-y-6">
                     <div>
                         <h3 className="font-bold text-textCustomDark">Profile information</h3>
-                        <span className="text-sm text-textCustom">Update your name, username and email address.</span>
+                        <span className="text-sm text-textCustom">Update your name, username, email address and bio.</span>
                     </div>
 
                     <form onSubmit={submit} className="space-y-6">
@@ -115,6 +117,18 @@ export default function Profile({ mustVerifyEmail, status }: { mustVerifyEmail: 
                                 )}
                             </div>
                         )}
+
+                        <div className="grid gap-2 text-textCustom">
+                            <Label htmlFor="about">Bio</Label>
+
+                            <Input
+                                id="about"
+                                className="mt-1 block w-full"
+                                value={data.about}
+                                onChange={(e) => setData('about', e.target.value)}
+                                placeholder="Bio"
+                            />
+                        </div>
 
                         <div className="flex items-center gap-4 text-textCustomDark">
                             <Button disabled={processing} className="cursor-pointer border-[1px] border-textCustom">

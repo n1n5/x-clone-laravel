@@ -13,7 +13,7 @@ type ProfileProps = {
     is_own_profile: boolean;
 };
 
-export default function ProfilePage({ user }: ProfileProps) {
+export default function ProfilePage({ user, is_own_profile }: ProfileProps) {
     return (
         <div className="mx-auto flex max-w-screen-md justify-between lg:max-w-screen-lg xl:max-w-screen-xl 2xl:max-w-screen-2xl">
             <div className="px-2 xs:px-4 2xl:px-8">
@@ -30,11 +30,27 @@ export default function ProfilePage({ user }: ProfileProps) {
                     </div>
                     <div>
                         <div className="relative w-full">
-                            <div className="aspect-[3/1] w-full overflow-hidden">
+                            <div className="group aspect-[3/1] w-full overflow-hidden">
                                 <img src="/general/cover.jpg" alt="Cover" height={200} width="auto" />
+                                {is_own_profile && (
+                                    <button
+                                        className="absolute top-2 right-2 cursor-pointer rounded-full bg-textDarkMode px-4 py-1 text-sm font-bold text-postInfo opacity-0 group-hover:opacity-50"
+                                        id="edit-cover"
+                                    >
+                                        Edit
+                                    </button>
+                                )}
                             </div>
-                            <div className="absolute left-4 aspect-square w-1/5 -translate-y-1/2 overflow-hidden rounded-full border-4 border-postInfo bg-textCustom">
+                            <div className="group absolute left-4 aspect-square w-1/5 -translate-y-1/2 overflow-hidden rounded-full border-4 border-postInfo bg-textCustom">
                                 <img src="/general/avatar.jpg" alt="Avatar" height={100} width={100} className="size-full object-cover" />
+                                {is_own_profile && (
+                                    <button
+                                        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 cursor-pointer rounded-full bg-textDarkMode px-4 py-1 text-sm font-bold text-postInfo opacity-0 group-hover:opacity-50"
+                                        id="edit-avatar"
+                                    >
+                                        Edit
+                                    </button>
+                                )}
                             </div>
                         </div>
                         <div className="flex w-full items-center justify-end gap-2 p-2">
