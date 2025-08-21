@@ -26,15 +26,17 @@ export default function VerifyEmail({ status }: { status?: string }) {
                 </div>
             )}
 
-            <form onSubmit={submit} className="space-y-6 text-center">
-                <Button disabled={processing} variant="secondary">
+            <form onSubmit={submit}>
+                <Button disabled={processing} variant="secondary" className="mt-4 w-full cursor-pointer bg-iconBlue px-6 py-2 text-postInfo">
                     {processing && <LoaderCircle className="h-4 w-4 animate-spin" />}
                     Resend verification email
                 </Button>
 
-                <TextLink href={route('logout')} method="post" className="mx-auto block text-sm">
-                    Log out
-                </TextLink>
+                <div className="text-muted-foreground py-2 text-center text-sm text-textDarkMode">
+                    <TextLink href={route('logout')} method="post" className="cursor-pointer">
+                        Log out
+                    </TextLink>
+                </div>
             </form>
         </AuthLayout>
     );
