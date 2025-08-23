@@ -29,4 +29,28 @@ class PostController extends Controller
 
         return Inertia::render('home');;
     }
+
+    public function api()
+    {
+        $posts = Post::with(['user' => function ($query) {
+            $query->select('id', 'name', 'username', 'avatar_path');
+        }])
+            ->latest()
+            ->get(['id', 'body', 'user_id', 'created_at'])
+            ->map(function ($post) {
+                return [
+                    'id' => $post->id,
+                    'body' => $post->body,
+                    'created_at' => $post->created_at->toDateTimeString(),
+                    'user' => [
+                        'id' => $post->user->id,
+                        'name' => $post->user->name,
+                        'username' => $post->user->username,
+                        'avatar_path' => $post->user->avatar_path
+                    ]
+                ];
+            });
+
+        return response()->json($posts);
+    }
 }

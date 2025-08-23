@@ -1,16 +1,11 @@
 'use client';
 
-import { useForm } from '@inertiajs/react';
+import { Link } from '@inertiajs/react';
 import { useEffect, useRef, useState } from 'react';
 
-export function ProfileInfo() {
+export function ProfilePageInfo() {
     const [isOpen, setIsOpen] = useState(false);
     const menuRef = useRef(null);
-    const { post } = useForm();
-
-    const handleLogout = () => {
-        post(route('logout'));
-    };
 
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
@@ -34,20 +29,20 @@ export function ProfileInfo() {
                 ...
             </button>
             {isOpen && (
-                <div className="absolute top-full right-0 z-10 mt-2 w-72 origin-top-right translate-y-[-170%] rounded-xl border-[1px] border-borderCustom bg-postInfo">
+                <div className="absolute right-0 z-10 mt-2 w-72 origin-top-right rounded-xl border-[1px] border-borderCustom bg-postInfo translate-y-[10%]">
                     <div className="py-2">
-                        <button
+                        <Link
+                            href="/settings/profile"
                             onClick={() => {
-                                handleLogout();
                                 setIsOpen(false);
                             }}
                             className={'flex w-full cursor-pointer items-center rounded-md p-1 px-4 py-3 text-textDarkMode hover:bg-hoverCustom'}
                         >
                             <div className="mr-3">
-                                <img src="/icons/logout.svg" alt="Logout" width={24} height={24} />
+                                <img src="/icons/settings.svg" alt="Profile settings" width={24} height={24} />
                             </div>
-                            Logout
-                        </button>
+                            Profile settings
+                        </Link>
                     </div>
                 </div>
             )}

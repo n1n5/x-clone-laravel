@@ -1,5 +1,6 @@
 import { Feed } from '@/components/app/feed';
 import { LeftBar } from '@/components/app/left-bar';
+import { ProfilePageInfo } from '@/components/app/profile-page-info';
 import { RightBar } from '@/components/app/right-bar';
 import { Head, Link, router } from '@inertiajs/react';
 import { useEffect, useRef, useState } from 'react';
@@ -18,14 +19,14 @@ type ProfileProps = {
 };
 
 export default function ProfilePage({ user, is_own_profile, cover_path, avatar_path }: ProfileProps & { cover_path: string; avatar_path: string }) {
-    const [coverImage, setCoverImage] = useState(() => {
+    const [coverImage, setCoverImage] = useState<string | null>(() => {
         const path = cover_path || user.cover_path;
-        return path ? (path.startsWith('http') ? path : `/${path}`) : '/general/cover.jpg';
+        return path ? (path.startsWith('http') ? path : `/${path}`) : null;
     });
 
     const [avatarImage, setAvatarImage] = useState(() => {
         const path = avatar_path || user.avatar_path;
-        return path ? (path.startsWith('http') ? path : `/${path}`) : '/general/avatar.png';
+        return path ? (path.startsWith('http') ? path : `/${path}`) : '/icons/profile.svg';
     });
 
     const coverInputRef = useRef<HTMLInputElement>(null);
@@ -37,7 +38,7 @@ export default function ProfilePage({ user, is_own_profile, cover_path, avatar_p
             setCoverImage(fullPath);
             user.cover_path = fullPath;
         } else {
-            setCoverImage('/general/cover.jpg');
+            setCoverImage(null);
         }
     }, [cover_path]);
 
@@ -55,7 +56,7 @@ export default function ProfilePage({ user, is_own_profile, cover_path, avatar_p
                 preserveScroll: true,
                 onError: (errors) => {
                     console.error('Error uploading cover image:', errors);
-                    setCoverImage(user.cover_path || '/general/cover.jpg');
+                    setCoverImage(user.cover_path ? (user.cover_path.startsWith('http') ? user.cover_path : `/${user.cover_path}`) : null);
                 },
             });
         };
@@ -80,7 +81,7 @@ export default function ProfilePage({ user, is_own_profile, cover_path, avatar_p
                 preserveScroll: true,
                 onError: (errors) => {
                     console.error('Error uploading avatar image:', errors);
-                    setAvatarImage(user.avatar_path || '/general/avatar.png');
+                    setAvatarImage(user.avatar_path || '/icons/profile.svg');
                 },
             });
         };
@@ -107,8 +108,12 @@ export default function ProfilePage({ user, is_own_profile, cover_path, avatar_p
                     </div>
                     <div>
                         <div className="relative w-full">
-                            <div className="group aspect-[3/1] w-full overflow-hidden">
-                                <img src={coverImage} alt="Cover" height={200} width="auto" />
+                            <div className="group aspect-[3/1] w-full overflow-hidden bg-white">
+                                {coverImage ? (
+                                    <img src={coverImage} alt="Cover" height={200} width="auto" />
+                                ) : (
+                                    <div className="h-full w-full" />
+                                )}
                                 <input type="file" ref={coverInputRef} className="hidden" accept="image/*" onChange={handleCoverImageChange} />
                                 {is_own_profile && (
                                     <button
@@ -121,7 +126,7 @@ export default function ProfilePage({ user, is_own_profile, cover_path, avatar_p
                                     </button>
                                 )}
                             </div>
-                            <div className="group absolute left-4 aspect-square w-1/5 -translate-y-1/2 overflow-hidden rounded-full border-4 border-postInfo bg-textCustom">
+                            <div className="group absolute left-4 aspect-square w-1/5 -translate-y-1/2 overflow-hidden rounded-full border-4 border-postInfo bg-postInfo">
                                 <img src={avatarImage} alt="Avatar" height={100} width={100} className="size-full object-cover" />
                                 <input type="file" ref={avatarInputRef} className="hidden" accept="image/*" onChange={handleAvatarImageChange} />
                                 {is_own_profile && (
@@ -136,10 +141,13 @@ export default function ProfilePage({ user, is_own_profile, cover_path, avatar_p
                             </div>
                         </div>
                         <div className="flex w-full items-center justify-end gap-2 p-2">
-                            <div className="flex h-9 w-9 cursor-pointer items-center justify-center rounded-full border-[1px] border-borderCustom">
-                                <img src="/icons/messages.svg" alt="Messages" height={20} width={20} />
-                            </div>
-                            <button className="cursor-pointer rounded-full bg-hoverCustom px-4 py-2 font-bold text-textDarkMode">Follow</button>
+                            {!is_own_profile ? (
+                                <button className="cursor-pointer rounded-full bg-hoverCustom px-4 py-2 font-bold text-textDarkMode">Follow</button>
+                            ) : (
+                                <button className="rounded-full bg-hoverCustom px-4 py-2">
+                                    <ProfilePageInfo />
+                                </button>
+                            )}
                         </div>
                         <div className="flex flex-col gap-2 p-4">
                             <div>

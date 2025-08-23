@@ -24,30 +24,24 @@ const menuList = [
     },
     {
         id: 4,
-        name: 'Messages',
-        link: '/',
-        icon: 'messages.svg',
-    },
-    {
-        id: 5,
         name: 'Bookmarks',
         link: '/',
         icon: 'bookmarks.svg',
     },
     {
-        id: 6,
+        id: 5,
         name: 'Communities',
         link: '/',
         icon: 'communities.svg',
     },
     {
-        id: 7,
+        id: 6,
         name: 'Profile',
         link: '/',
         icon: 'profile.svg',
     },
     {
-        id: 8,
+        id: 7,
         name: 'More',
         link: '/',
         icon: 'more.svg',
