@@ -1,7 +1,6 @@
 import { Feed } from '@/components/app/feed';
 import { LeftBar } from '@/components/app/left-bar';
 import { RightBar } from '@/components/app/right-bar';
-import { Share } from '@/components/app/share';
 import { Head, Link } from '@inertiajs/react';
 
 export default function Welcome() {
@@ -26,7 +25,6 @@ export default function Welcome() {
                                     Following
                                 </Link>
                             </div>
-                            <Share />
                             <Feed />
                         </div>
                     </div>

@@ -16,6 +16,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
         return Inertia::render('home');
     })->name('home');
 
+    Route::post('/posts', [PostController::class, 'store'])->name('posts.store');
+
     Route::get('/profile/{username}', [ProfilePageController::class, 'show'])->name('profile');
     Route::post('/profile/{username}/update-cover', [ProfilePageController::class, 'updateCover'])
         ->name('profile.update-cover');

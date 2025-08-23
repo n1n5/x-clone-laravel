@@ -1,5 +1,6 @@
 'use client';
 
+import { useForm } from '@inertiajs/react';
 import { useState } from 'react';
 import { Avatar, AvatarImage } from './ui/avatar';
 
@@ -37,17 +38,34 @@ export function Share() {
 
     const previewURL = media ? URL.createObjectURL(media) : null;
 
+    const { data, setData, post, processing, reset } = useForm({
+        body: '',
+    });
+
+    const handleSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+        post(route('posts.store'), {
+            onSuccess: () => {
+                reset('body');
+                setMedia(null);
+            },
+        });
+    };
+
     return (
-        <form className="flex gap-4 p-4">
+        <form className="flex gap-4 p-4" onSubmit={handleSubmit}>
             <Avatar>
                 <AvatarImage src="/general/avatar.jpg" alt="Avatar" width={100} height={100} />
             </Avatar>
             <div className="flex flex-1 flex-col gap-4">
                 <input
                     type="text"
-                    name="description"
+                    name="body"
+                    value={data.body}
+                    onChange={(e) => setData('body', e.target.value)}
                     placeholder="What's happening?"
                     className="bg-transparent text-xl text-textDarkMode outline-none placeholder:text-textCustom"
+                    disabled={processing}
                 />
                 {previewURL && (
                     <div className="relative overflow-hidden rounded-xl">
