@@ -26,11 +26,17 @@ export function Post({ post }: PostProps) {
             */}
             <div className="flex gap-4">
                 <Avatar>
-                    <AvatarImage 
-                        src={post.user.avatar_path ? `${post.user.avatar_path}` : '/icons/profile.svg'} 
-                        alt={post.user.username} 
-                        height={100} 
-                        width={100} 
+                    <AvatarImage
+                        src={
+                            post.user.avatar_path
+                                ? post.user.avatar_path.startsWith('http')
+                                    ? post.user.avatar_path
+                                    : `/${post.user.avatar_path}`
+                                : '/icons/profile.svg'
+                        }
+                        alt={post.user.username}
+                        height={100}
+                        width={100}
                     />
                 </Avatar>
                 <div className="flex flex-1 flex-col gap-2">

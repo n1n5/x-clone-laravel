@@ -12,14 +12,19 @@ interface PostData {
     created_at: string;
 }
 
-export function Feed() {
+interface FeedProps {
+    user_id?: number;
+}
+
+export function Feed({ user_id }: FeedProps) {
     const [posts, setPosts] = useState<PostData[]>([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         const fetchPosts = async () => {
             try {
-                const response = await fetch('/api/posts');
+                const url = user_id ? `/api/users/${user_id}/posts` : '/api/posts';
+                const response = await fetch(url);
                 const data = await response.json();
                 setPosts(data);
             } catch (error) {
@@ -30,7 +35,7 @@ export function Feed() {
         };
 
         fetchPosts();
-    }, []);
+    }, [user_id]);
 
     if (loading) {
         return <div className="p-4 text-center">Loading posts...</div>;

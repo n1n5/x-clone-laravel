@@ -55,9 +55,8 @@ class ProfilePageController extends Controller
             'cover_path' => $path
         ]);
 
-        return back()->with([
-            'success' => 'Cover image updated successfully',
-            'cover_path' => $path
+        return Inertia::location('/profile/' . $username, 302, [
+            'replace' => true,
         ]);
     }
 
@@ -84,9 +83,8 @@ class ProfilePageController extends Controller
             'avatar_path' => $path
         ]);
 
-        return back()->with([
-            'success' => 'Avatar image updated successfully',
-            'avatar_path' => $path
+        return Inertia::location('/profile/' . $username, 302, [
+            'replace' => true,
         ]);
     }
 }

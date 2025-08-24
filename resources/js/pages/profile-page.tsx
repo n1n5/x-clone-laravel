@@ -109,11 +109,7 @@ export default function ProfilePage({ user, is_own_profile, cover_path, avatar_p
                     <div>
                         <div className="relative w-full">
                             <div className="group aspect-[3/1] w-full overflow-hidden bg-white">
-                                {coverImage ? (
-                                    <img src={coverImage} alt="Cover" height={200} width="auto" />
-                                ) : (
-                                    <div className="h-full w-full" />
-                                )}
+                                {coverImage ? <img src={coverImage} alt="Cover" height={200} width="auto" /> : <div className="h-full w-full" />}
                                 <input type="file" ref={coverInputRef} className="hidden" accept="image/*" onChange={handleCoverImageChange} />
                                 {is_own_profile && (
                                     <button
@@ -157,10 +153,6 @@ export default function ProfilePage({ user, is_own_profile, cover_path, avatar_p
                             <p className="text-textDarkMode">{user.about}</p>
                             <div className="flex gap-4 text-[15px] text-iconBlue">
                                 <div className="flex items-center gap-2">
-                                    <img src="/icons/location.svg" alt="Location" height={20} width={20} />
-                                    <span>Bosnia and Herzegovina</span>
-                                </div>
-                                <div className="flex items-center gap-2">
                                     <img src="/icons/calendar.svg" alt="Calendar" height={20} width={20} />
                                     <span>Joined {user.created_at}</span>
                                 </div>
@@ -176,7 +168,7 @@ export default function ProfilePage({ user, is_own_profile, cover_path, avatar_p
                         </div>
                     </div>
                     <div>
-                        <Feed />
+                        <Feed user_id={user.id} />
                     </div>
                 </div>
             </div>

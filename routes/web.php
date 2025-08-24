@@ -29,6 +29,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
 Route::prefix('api')->middleware('auth')->group(function () {
     Route::get('/posts', [PostController::class, 'api']);
+    Route::get('/users/{user}/posts', [PostController::class, 'userPosts'])->name('api.users.posts');
 });
 
 require __DIR__ . '/settings.php';
