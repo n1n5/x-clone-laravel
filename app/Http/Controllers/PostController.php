@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Post;
+use App\Models\PostAttachment;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
@@ -17,8 +18,16 @@ class PostController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'body' => 'required|string|max:280',
+            'body' => 'nullable|string|max:280',
+            'media' => 'nullable|file|mimes:jpeg,png,jpg,gif|max:51200',
         ]);
+
+        // Require at least one of body or media
+        if (empty($validated['body']) && !$request->hasFile('media')) {
+            return back()->withErrors([
+                'message' => 'Post must contain text or an image'
+            ]);
+        }
 
         $post = new Post([
             'body' => $validated['body'],
@@ -27,14 +36,31 @@ class PostController extends Controller
 
         $post->save();
 
-        return Inertia::render('home');;
+        if ($request->hasFile('media') && $request->file('media')->isValid()) {
+            $file = $request->file('media');
+            $mimeType = $file->getMimeType();
+            $fileName = $post->id . '.png';
+            $file->move(public_path('attachments'), $fileName);
+            $path = 'attachments/' . $fileName;
+
+            $attachment = new PostAttachment([
+                'post_id' => $post->id,
+                'name' => $file->getClientOriginalName(),
+                'path' => $path,
+                'mime' => $mimeType,
+                'created_by' => Auth::id(),
+            ]);
+            $attachment->save();
+        }
+
+        return Inertia::render('home');
     }
 
     public function api()
     {
         $posts = Post::with(['user' => function ($query) {
             $query->select('id', 'name', 'username', 'avatar_path');
-        }])
+        }, 'attachments'])
             ->latest()
             ->get(['id', 'body', 'user_id', 'created_at'])
             ->map(function ($post) {
@@ -47,7 +73,13 @@ class PostController extends Controller
                         'name' => $post->user->name,
                         'username' => $post->user->username,
                         'avatar_path' => $post->user->avatar_path
-                    ]
+                    ],
+                    'attachments' => $post->attachments->map(function ($attachment) {
+                        return [
+                            'path' => $attachment->path,
+                            'mime' => $attachment->mime,
+                        ];
+                    })
                 ];
             });
 
@@ -58,7 +90,7 @@ class PostController extends Controller
     {
         $posts = Post::with(['user' => function ($query) {
             $query->select('id', 'name', 'username', 'avatar_path');
-        }])
+        }, 'attachments'])
             ->where('user_id', $user_id)
             ->latest()
             ->get(['id', 'body', 'user_id', 'created_at'])
@@ -72,7 +104,13 @@ class PostController extends Controller
                         'name' => $post->user->name,
                         'username' => $post->user->username,
                         'avatar_path' => $post->user->avatar_path
-                    ]
+                    ],
+                    'attachments' => $post->attachments->map(function ($attachment) {
+                        return [
+                            'path' => $attachment->path,
+                            'mime' => $attachment->mime,
+                        ];
+                    })
                 ];
             });
 

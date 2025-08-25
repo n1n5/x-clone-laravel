@@ -19,6 +19,7 @@ return new class extends Migration
             $table->string('mime', 25);
             $table->foreignId('created_by')->constrained('users');
             $table->timestamp('created_at')->nullable();
+            $table->timestamp('updated_at')->nullable();
         });
     }
 

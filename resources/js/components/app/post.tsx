@@ -12,6 +12,10 @@ export interface PostProps {
             avatar_path: string;
         };
         created_at: string;
+        attachments?: {
+            path: string;
+            mime: string;
+        }[];
     };
 }
 
@@ -49,9 +53,18 @@ export function Post({ post }: PostProps) {
                         <PostInfo />
                     </div>
                     <p className="text-textDarkMode">{post.body}</p>
-                    {/* 
-                    <img src="/general/post.jpeg" alt="Post" height={600} width={600} />
-                    */}
+
+                    {post.attachments && post.attachments.length > 0 && (
+                        <div>
+                            {post.attachments.map((attachment) => (
+                                <img
+                                    key={attachment.path}
+                                    src={attachment.path.startsWith('http') ? attachment.path : `/${attachment.path}`}
+                                    alt="Post attachment"
+                                />
+                            ))}
+                        </div>
+                    )}
                     <PostInteraction />
                 </div>
             </div>
