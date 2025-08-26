@@ -22,7 +22,6 @@ class PostController extends Controller
             'media' => 'nullable|file|mimes:jpeg,png,jpg,gif|max:51200',
         ]);
 
-        // Require at least one of body or media
         if (empty($validated['body']) && !$request->hasFile('media')) {
             return back()->withErrors([
                 'message' => 'Post must contain text or an image'
@@ -45,7 +44,6 @@ class PostController extends Controller
 
             $attachment = new PostAttachment([
                 'post_id' => $post->id,
-                'name' => $file->getClientOriginalName(),
                 'path' => $path,
                 'mime' => $mimeType,
                 'created_by' => Auth::id(),

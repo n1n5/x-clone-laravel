@@ -29,7 +29,7 @@ export function ProfilePageInfo() {
                 ...
             </button>
             {isOpen && (
-                <div className="absolute right-0 z-10 mt-2 w-72 origin-top-right rounded-xl border-[1px] border-borderCustom bg-postInfo translate-y-[10%]">
+                <div className="absolute right-0 z-10 mt-2 w-72 origin-top-right translate-y-[10%] rounded-xl border-[1px] border-borderCustom bg-postInfo">
                     <div className="py-2">
                         <Link
                             href="/settings/profile"

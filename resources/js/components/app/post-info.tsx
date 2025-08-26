@@ -30,7 +30,24 @@ const menuList = [
     },
 ];
 
-export function PostInfo() {
+const userMenuList = [
+    {
+        id: 1,
+        name: 'Edit post',
+        icon: 'edit.svg',
+    },
+    {
+        id: 2,
+        name: 'Delete post',
+        icon: 'delete.svg',
+    },
+];
+
+type UserProps = {
+    is_own_profile: boolean;
+};
+
+export function PostInfo({ is_own_profile }: UserProps) {
     const [isOpen, setIsOpen] = useState(false);
     const menuRef = useRef(null);
 
@@ -58,20 +75,31 @@ export function PostInfo() {
             {isOpen && (
                 <div className="absolute right-0 z-10 mt-2 w-72 origin-top-right rounded-xl border-[1px] border-borderCustom bg-postInfo">
                     <div className="py-2">
-                        {menuList.map((item) => (
-                            <button
-                                key={item.id}
-                                onClick={() => {
-                                    setIsOpen(false);
-                                }}
-                                className={'flex w-full cursor-pointer items-center rounded-md p-1 px-4 py-3 text-textDarkMode hover:bg-hoverCustom'}
-                            >
-                                <div className="mr-3">
-                                    <img src={`/icons/${item.icon}`} alt={item.name} width={24} height={24} />
-                                </div>
-                                {item.name}
-                            </button>
-                        ))}
+                        {is_own_profile
+                            ? userMenuList.map((item) => (
+                                  <button
+                                      key={item.id}
+                                      onClick={() => setIsOpen(false)}
+                                      className="flex w-full cursor-pointer items-center rounded-md p-1 px-4 py-3 text-textDarkMode hover:bg-hoverCustom"
+                                  >
+                                      <div className="mr-3">
+                                          <img src={`/icons/${item.icon}`} alt={item.name} width={24} height={24} />
+                                      </div>
+                                      {item.name}
+                                  </button>
+                              ))
+                            : menuList.map((item) => (
+                                  <button
+                                      key={item.id}
+                                      onClick={() => setIsOpen(false)}
+                                      className="flex w-full cursor-pointer items-center rounded-md p-1 px-4 py-3 text-textDarkMode hover:bg-hoverCustom"
+                                  >
+                                      <div className="mr-3">
+                                          <img src={`/icons/${item.icon}`} alt={item.name} width={24} height={24} />
+                                      </div>
+                                      {item.name}
+                                  </button>
+                              ))}
                     </div>
                 </div>
             )}

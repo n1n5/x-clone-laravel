@@ -6,9 +6,9 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 
-import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogTitle, DialogTrigger } from '@/components/app/ui/dialog';
 
-export default function DeleteUser() {
+export function DeleteUser() {
     const passwordInput = useRef<HTMLInputElement>(null);
     const { data, setData, delete: destroy, processing, reset, errors, clearErrors } = useForm<Required<{ password: string }>>({ password: '' });
 
@@ -39,14 +39,13 @@ export default function DeleteUser() {
                     <p className="font-medium">Warning</p>
                     <p className="text-sm">Please proceed with caution, this cannot be undone.</p>
                 </div>
-
                 <Dialog>
                     <DialogTrigger asChild>
                         <Button variant="destructive" className="cursor-pointer border-[1px] text-red-600 dark:text-red-100">
                             Delete account
                         </Button>
                     </DialogTrigger>
-                    <DialogContent>
+                    <DialogContent className="bg-postInfo text-textDarkMode">
                         <DialogTitle>Are you sure you want to delete your account?</DialogTitle>
                         <DialogDescription>
                             Once your account is deleted, all of its resources and data will also be permanently deleted. Please enter your password
@@ -74,12 +73,11 @@ export default function DeleteUser() {
 
                             <DialogFooter className="gap-2">
                                 <DialogClose asChild>
-                                    <Button variant="secondary" onClick={closeModal}>
+                                    <Button variant="secondary" onClick={closeModal} className="cursor-pointer border-[1px] border-textDarkMode">
                                         Cancel
                                     </Button>
                                 </DialogClose>
-
-                                <Button variant="destructive" disabled={processing} asChild>
+                                <Button variant="destructive" disabled={processing} asChild className="cursor-pointer bg-textDarkMode text-postInfo">
                                     <button type="submit">Delete account</button>
                                 </Button>
                             </DialogFooter>

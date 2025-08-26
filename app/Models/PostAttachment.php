@@ -10,7 +10,6 @@ class PostAttachment extends Model
 
     protected $fillable = [
         'post_id',
-        'name',
         'path',
         'mime',
         'created_by'

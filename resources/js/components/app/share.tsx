@@ -74,7 +74,7 @@ export function Share() {
                 {errors.media && (
                     <div className="mt-2 text-sm text-red-500">
                         {errors.media}
-                        {errors.media.includes('mimetypes') && <div className="mt-1">Supported formats: images (JPEG, PNG, GIF)</div>}
+                        {errors.media.includes('mimes') && <div className="mt-1">Supported formats: images (JPEG, PNG, GIF)</div>}
                         {errors.media.includes('max') && <div className="mt-1">Max file size: 50MB</div>}
                     </div>
                 )}
