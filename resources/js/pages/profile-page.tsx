@@ -1,3 +1,5 @@
+'use client';
+
 import { Feed } from '@/components/app/feed';
 import { LeftBar } from '@/components/app/left-bar';
 import { ProfilePageInfo } from '@/components/app/profile-page-info';
@@ -5,20 +7,24 @@ import { RightBar } from '@/components/app/right-bar';
 import { Head, Link, router } from '@inertiajs/react';
 import { useEffect, useRef, useState } from 'react';
 
-type ProfileProps = {
-    user: {
-        id: number;
-        name: string;
-        username: string;
-        about: string;
-        created_at: string;
-        cover_path?: string | null;
-        avatar_path?: string | null;
-    };
-    is_own_profile: boolean;
+type User = {
+    id: number;
+    name: string;
+    username: string;
+    about: string;
+    created_at: string;
+    cover_path?: string | null;
+    avatar_path?: string | null;
 };
 
-export default function ProfilePage({ user, is_own_profile, cover_path, avatar_path }: ProfileProps & { cover_path: string; avatar_path: string }) {
+type ProfileProps = {
+    user: User;
+    is_own_profile: boolean;
+    cover_path: string;
+    avatar_path: string;
+};
+
+export default function ProfilePage({ user, is_own_profile, cover_path, avatar_path }: ProfileProps) {
     const [coverImage, setCoverImage] = useState<string | null>(() => {
         const path = cover_path || user.cover_path;
         return path ? (path.startsWith('http') ? path : `/${path}`) : null;
@@ -42,55 +48,41 @@ export default function ProfilePage({ user, is_own_profile, cover_path, avatar_p
         }
     }, [cover_path]);
 
-    const handleCoverImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0];
-        if (!file) return;
+    const handleImageUpload = (file: File, type: 'cover' | 'avatar') => {
+        const formData = new FormData();
+        const fieldName = type === 'cover' ? 'cover_image' : 'avatar_image';
+        formData.append(fieldName, file);
 
-        const reader = new FileReader();
-        reader.onload = () => {
-            const formData = new FormData();
-            formData.append('cover_image', file);
-
-            router.post(`/profile/${user.username}/update-cover`, formData, {
-                forceFormData: true,
-                preserveScroll: true,
-                onError: (errors) => {
-                    console.error('Error uploading cover image:', errors);
+        router.post(`/profile/${user.username}/update-${type}`, formData, {
+            forceFormData: true,
+            preserveScroll: true,
+            onError: (errors) => {
+                console.error(`Error uploading ${type} image:`, errors);
+                if (type === 'cover') {
                     setCoverImage(user.cover_path ? (user.cover_path.startsWith('http') ? user.cover_path : `/${user.cover_path}`) : null);
-                },
-            });
-        };
-        reader.readAsDataURL(file);
+                } else {
+                    setAvatarImage(user.avatar_path || '/icons/profile.svg');
+                }
+            },
+        });
     };
 
-    const triggerCoverInput = () => {
-        coverInputRef.current?.click();
+    const handleCoverImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (file) {
+            handleImageUpload(file, 'cover');
+        }
     };
 
     const handleAvatarImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
-        if (!file) return;
-
-        const reader = new FileReader();
-        reader.onload = () => {
-            const formData = new FormData();
-            formData.append('avatar_image', file);
-
-            router.post(`/profile/${user.username}/update-avatar`, formData, {
-                forceFormData: true,
-                preserveScroll: true,
-                onError: (errors) => {
-                    console.error('Error uploading avatar image:', errors);
-                    setAvatarImage(user.avatar_path || '/icons/profile.svg');
-                },
-            });
-        };
-        reader.readAsDataURL(file);
+        if (file) {
+            handleImageUpload(file, 'avatar');
+        }
     };
 
-    const triggerAvatarInput = () => {
-        avatarInputRef.current?.click();
-    };
+    const triggerCoverInput = () => coverInputRef.current?.click();
+    const triggerAvatarInput = () => avatarInputRef.current?.click();
 
     return (
         <div className="mx-auto flex max-w-screen-md justify-between lg:max-w-screen-lg xl:max-w-screen-xl 2xl:max-w-screen-2xl">
@@ -109,12 +101,21 @@ export default function ProfilePage({ user, is_own_profile, cover_path, avatar_p
                     <div>
                         <div className="relative w-full">
                             <div className="group aspect-[3/1] w-full overflow-hidden bg-white">
-                                {coverImage ? <img src={coverImage} alt="Cover" height={200} width="auto" /> : <div className="h-full w-full" />}
-                                <input type="file" ref={coverInputRef} className="hidden" accept="image/*" onChange={handleCoverImageChange} />
+                                {coverImage ? (
+                                    <img src={coverImage} alt="Cover" height={200} width="auto" />
+                                ) : (
+                                    <div className="h-full w-full" />
+                                )}
+                                <input 
+                                    type="file" 
+                                    ref={coverInputRef} 
+                                    className="hidden" 
+                                    accept="image/*" 
+                                    onChange={handleCoverImageChange} 
+                                />
                                 {is_own_profile && (
                                     <button
                                         className="absolute top-2 right-2 cursor-pointer rounded-full bg-textDarkMode px-4 py-1 text-sm font-bold text-postInfo opacity-0 group-hover:opacity-50"
-                                        id="edit-cover"
                                         type="button"
                                         onClick={triggerCoverInput}
                                     >
@@ -124,7 +125,13 @@ export default function ProfilePage({ user, is_own_profile, cover_path, avatar_p
                             </div>
                             <div className="group absolute left-4 aspect-square w-1/5 -translate-y-1/2 overflow-hidden rounded-full border-4 border-postInfo bg-postInfo">
                                 <img src={avatarImage} alt="Avatar" height={100} width={100} className="size-full object-cover" />
-                                <input type="file" ref={avatarInputRef} className="hidden" accept="image/*" onChange={handleAvatarImageChange} />
+                                <input 
+                                    type="file" 
+                                    ref={avatarInputRef} 
+                                    className="hidden" 
+                                    accept="image/*" 
+                                    onChange={handleAvatarImageChange} 
+                                />
                                 {is_own_profile && (
                                     <button
                                         className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 cursor-pointer rounded-full bg-textDarkMode px-4 py-1 text-sm font-bold text-postInfo opacity-0 group-hover:opacity-50"
@@ -138,7 +145,9 @@ export default function ProfilePage({ user, is_own_profile, cover_path, avatar_p
                         </div>
                         <div className="flex w-full items-center justify-end gap-2 p-2">
                             {!is_own_profile ? (
-                                <button className="cursor-pointer rounded-full bg-hoverCustom px-4 py-2 font-bold text-textDarkMode">Follow</button>
+                                <button className="cursor-pointer rounded-full bg-hoverCustom px-4 py-2 font-bold text-textDarkMode">
+                                    Follow
+                                </button>
                             ) : (
                                 <button className="rounded-full bg-hoverCustom px-4 py-2">
                                     <ProfilePageInfo />

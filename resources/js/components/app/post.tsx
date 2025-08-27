@@ -1,28 +1,10 @@
-import { SharedData } from '@/types';
+import { Post as PostType, SharedData } from '@/types';
 import { usePage } from '@inertiajs/react';
 import { PostInfo } from './post-info';
 import { PostInteraction } from './post-interaction';
 import { Avatar, AvatarImage } from './ui/avatar';
 
-export interface PostProps {
-    post: {
-        id: number;
-        body: string;
-        user: {
-            id: number;
-            name: string;
-            username: string;
-            avatar_path: string;
-        };
-        created_at: string;
-        attachments?: {
-            path: string;
-            mime: string;
-        }[];
-    };
-}
-
-export function Post({ post }: PostProps) {
+export function Post({ post }: { post: PostType }) {
     const { auth } = usePage<SharedData>().props;
     const is_own_profile = auth.user?.id === post.user.id;
 
@@ -56,7 +38,7 @@ export function Post({ post }: PostProps) {
                             <span className="text-textCustom">@{post.user.username}</span>
                             <span className="text-textCustom">{post.created_at}</span>
                         </div>
-                        <PostInfo is_own_profile={is_own_profile} />
+                        <PostInfo is_own_profile={is_own_profile} postId={post.id} postBody={post.body} />
                     </div>
                     <p className="text-textDarkMode">{post.body}</p>
 

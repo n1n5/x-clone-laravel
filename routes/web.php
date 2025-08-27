@@ -7,28 +7,29 @@ use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
 Route::middleware('guest')->group(function () {
-    Route::get('/', [AuthenticatedSessionController::class, 'create'])
-        ->name('login');
+    Route::get('/', [AuthenticatedSessionController::class, 'create'])->name('login');
 });
 
 Route::middleware(['auth', 'verified'])->group(function () {
-    Route::get('home', function () {
-        return Inertia::render('home');
-    })->name('home');
+    Route::get('home', fn() => Inertia::render('home'))->name('home');
 
-    Route::post('/posts', [PostController::class, 'store'])->name('posts.store');
-
-    Route::get('/profile/{username}', [ProfilePageController::class, 'show'])->name('profile');
-    Route::post('/profile/{username}/update-cover', [ProfilePageController::class, 'updateCover'])
-        ->name('profile.update-cover');
-    Route::post('/profile/{username}/update-avatar', [ProfilePageController::class, 'updateAvatar'])
-        ->name('profile.update-avatar');
+    Route::prefix('/profile/{username}')->group(function () {
+        Route::get('/', [ProfilePageController::class, 'show'])->name('profile');
+        Route::post('/update-cover', [ProfilePageController::class, 'updateCover'])->name('profile.update-cover');
+        Route::post('/update-avatar', [ProfilePageController::class, 'updateAvatar'])->name('profile.update-avatar');
+    });
 
     Route::get('/post', [PostController::class, 'create'])->name('post');
 });
 
 Route::prefix('api')->middleware('auth')->group(function () {
-    Route::get('/posts', [PostController::class, 'api']);
+    Route::prefix('/posts')->group(function () {
+        Route::get('/', [PostController::class, 'show']);
+        Route::post('/', [PostController::class, 'store'])->name('posts.store');
+        Route::put('/{post}', [PostController::class, 'update'])->name('posts.update');
+        Route::delete('/{post}', [PostController::class, 'destroy'])->name('posts.destroy');
+    });
+
     Route::get('/users/{user}/posts', [PostController::class, 'userPosts'])->name('api.users.posts');
 });
 

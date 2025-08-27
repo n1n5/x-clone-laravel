@@ -1,31 +1,22 @@
+'use client';
+
+import { getPosts, getUserPosts } from '@/lib/api';
+import { Post as PostType } from '@/types';
 import { useEffect, useState } from 'react';
 import { Post } from './post';
-
-interface PostData {
-    id: number;
-    body: string;
-    user: {
-        name: string;
-        username: string;
-        avatar_path: string;
-    };
-    created_at: string;
-}
 
 interface FeedProps {
     user_id?: number;
 }
 
 export function Feed({ user_id }: FeedProps) {
-    const [posts, setPosts] = useState<PostData[]>([]);
+    const [posts, setPosts] = useState<PostType[]>([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         const fetchPosts = async () => {
             try {
-                const url = user_id ? `/api/users/${user_id}/posts` : '/api/posts';
-                const response = await fetch(url);
-                const data = await response.json();
+                const data = user_id ? await getUserPosts(user_id) : await getPosts();
                 setPosts(data);
             } catch (error) {
                 console.error('Error fetching posts:', error);
@@ -42,7 +33,7 @@ export function Feed({ user_id }: FeedProps) {
     }
 
     if (posts.length === 0) {
-        return <div className="p-4 text-center">No posts found</div>;
+        return <div className="p-4 text-center">No posts yet.</div>;
     }
 
     return (

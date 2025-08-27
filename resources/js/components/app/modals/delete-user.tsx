@@ -34,14 +34,14 @@ export function DeleteUser() {
                 <h3 className="font-bold text-textCustomDark">Delete account</h3>
                 <span className="text-sm text-textCustom">Delete your account and all of its resources</span>
             </div>
-            <div className="space-y-4 rounded-lg border-[1px] border-red-100 bg-red-50 p-4 dark:border-red-200/10 dark:bg-red-700/10">
-                <div className="relative space-y-0.5 text-red-600 dark:text-red-100">
+            <div className="b space-y-4 rounded-lg border-[1px] border-iconPink p-4">
+                <div className="relative space-y-0.5 text-iconPink">
                     <p className="font-medium">Warning</p>
                     <p className="text-sm">Please proceed with caution, this cannot be undone.</p>
                 </div>
                 <Dialog>
                     <DialogTrigger asChild>
-                        <Button variant="destructive" className="cursor-pointer border-[1px] text-red-600 dark:text-red-100">
+                        <Button variant="destructive" className="cursor-pointer border-[1px] text-iconPink">
                             Delete account
                         </Button>
                     </DialogTrigger>

@@ -1,4 +1,4 @@
-import { SharedData } from '@/types';
+import { SharedData, User } from '@/types';
 import { Link, usePage } from '@inertiajs/react';
 import { ProfileInfo } from './profile-info';
 import { Avatar, AvatarImage } from './ui/avatar';
@@ -50,6 +50,7 @@ const menuList = [
 
 export function LeftBar() {
     const { auth } = usePage<SharedData>().props;
+    const user = auth.user as User | null;
 
     const menuItems = menuList.map((item) => {
         if (item.name === 'Profile' && auth.user) {
@@ -80,15 +81,17 @@ export function LeftBar() {
                 </Link>
             </div>
             <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                    <Avatar>
-                        <AvatarImage src="/general/avatar.jpg" alt="Avatar" height={100} width={100} />
-                    </Avatar>
-                    <div className="hidden flex-col 2xl:flex">
-                        <span className="font-bold text-textDarkMode">Nina</span>
-                        <span className="text-sm text-textCustom">@n1n5</span>
+                {user && (
+                    <div className="flex items-center gap-2">
+                        <Avatar>
+                            <AvatarImage src={user.avatar_path || '/icons/profile.svg'} alt="Avatar" height={100} width={100} />
+                        </Avatar>
+                        <div className="hidden flex-col 2xl:flex">
+                            <span className="font-bold text-textDarkMode">{user.name}</span>
+                            <span className="text-sm text-textCustom">@{user.username}</span>
+                        </div>
                     </div>
-                </div>
+                )}
                 <ProfileInfo />
             </div>
         </div>

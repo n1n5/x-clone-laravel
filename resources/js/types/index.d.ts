@@ -34,10 +34,20 @@ export interface SharedData {
 export interface User {
     id: number;
     name: string;
+    username: string;
+    avatar_path: string;
     email: string;
-    avatar?: string;
+    about: string | null;
     email_verified_at: string | null;
+}
+
+export interface Post {
+    id: number;
+    body: string;
     created_at: string;
-    updated_at: string;
-    [key: string]: unknown; // This allows for additional properties...
+    user: User;
+    attachments?: {
+        path: string;
+        mime: string;
+    }[];
 }
