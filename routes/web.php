@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\PostController;
+use App\Http\Controllers\PostReactionController;
 use App\Http\Controllers\ProfilePageController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -28,6 +29,8 @@ Route::prefix('api')->middleware('auth')->group(function () {
         Route::post('/', [PostController::class, 'store'])->name('posts.store');
         Route::put('/{post}', [PostController::class, 'update'])->name('posts.update');
         Route::delete('/{post}', [PostController::class, 'destroy'])->name('posts.destroy');
+        Route::post('/{post}/reactions', [PostReactionController::class, 'store'])->name('posts.reactions.store');
+        Route::delete('/{post}/reactions', [PostReactionController::class, 'destroy'])->name('posts.reactions.destroy');
     });
 
     Route::get('/users/{user}/posts', [PostController::class, 'userPosts'])->name('api.users.posts');

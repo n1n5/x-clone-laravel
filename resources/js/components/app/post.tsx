@@ -8,24 +8,15 @@ export function Post({ post }: { post: PostType }) {
     const { auth } = usePage<SharedData>().props;
     const is_own_profile = auth.user?.id === post.user.id;
 
+    const getImageSrc = (path: string) => 
+        path.startsWith('http') ? path : `/${path}`;
+
     return (
         <div className="border-y-[1px] border-borderCustom p-4">
-            {/* 
-            <div className="mb-2 flex items-center gap-2 text-sm font-bold text-textCustom">
-                <img src="/icons/repost.svg" alt="Repost" height={18} width={18} />
-                <span>{post.user.name} reposted</span>
-            </div>
-            */}
             <div className="flex gap-4">
                 <Avatar>
                     <AvatarImage
-                        src={
-                            post.user.avatar_path
-                                ? post.user.avatar_path.startsWith('http')
-                                    ? post.user.avatar_path
-                                    : `/${post.user.avatar_path}`
-                                : '/icons/profile.svg'
-                        }
+                        src={post.user.avatar_path ? getImageSrc(post.user.avatar_path) : '/icons/profile.svg'}
                         alt={post.user.username}
                         height={100}
                         width={100}
@@ -47,13 +38,17 @@ export function Post({ post }: { post: PostType }) {
                             {post.attachments.map((attachment) => (
                                 <img
                                     key={attachment.path}
-                                    src={attachment.path.startsWith('http') ? attachment.path : `/${attachment.path}`}
+                                    src={getImageSrc(attachment.path)}
                                     alt="Post attachment"
                                 />
                             ))}
                         </div>
                     )}
-                    <PostInteraction />
+                    <PostInteraction 
+                        postId={post.id} 
+                        initialLikeCount={post.like_count} 
+                        initialIsLiked={post.is_liked} 
+                    />
                 </div>
             </div>
         </div>

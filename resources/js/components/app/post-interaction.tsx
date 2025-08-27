@@ -1,6 +1,34 @@
 'use client';
 
-export function PostInteraction() {
+import { likePost, unlikePost } from '@/lib/api';
+import { useState } from 'react';
+
+interface PostInteractionProps {
+    postId: number;
+    initialLikeCount: number;
+    initialIsLiked: boolean;
+}
+
+export function PostInteraction({ postId, initialLikeCount, initialIsLiked }: PostInteractionProps) {
+    const [isLiked, setIsLiked] = useState(initialIsLiked);
+    const [likeCount, setLikeCount] = useState(initialLikeCount);
+
+    const handleLike = async () => {
+        try {
+            if (isLiked) {
+                const response = await unlikePost(postId);
+                setIsLiked(false);
+                setLikeCount(response.like_count);
+            } else {
+                const response = await likePost(postId);
+                setIsLiked(true);
+                setLikeCount(response.like_count);
+            }
+        } catch (error) {
+            console.error('Failed to toggle like:', error);
+        }
+    };
+
     return (
         <div className="my-2 flex items-center justify-between gap-4 text-textCustom lg:gap-16">
             <div className="flex flex-1 items-center justify-between">
@@ -12,9 +40,12 @@ export function PostInteraction() {
                     <span className="inline-block h-[20px] w-[20px] bg-current [mask-image:url(/icons/repost.svg)] [mask-size:contain] [-webkit-mask-image:url(/icons/repost.svg)] [-webkit-mask-size:contain]" />
                     157
                 </button>
-                <button className="flex cursor-pointer items-center gap-2 hover:text-iconPink">
+                <button
+                    className={`flex cursor-pointer items-center gap-2 ${isLiked ? 'text-iconPink' : 'hover:text-iconPink'}`}
+                    onClick={handleLike}
+                >
                     <span className="inline-block h-[20px] w-[20px] bg-current [mask-image:url(/icons/like.svg)] [mask-size:contain] [-webkit-mask-image:url(/icons/like.svg)] [-webkit-mask-size:contain]" />
-                    157
+                    {likeCount}
                 </button>
             </div>
             <div className="flex items-center gap-2">

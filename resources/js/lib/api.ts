@@ -1,10 +1,12 @@
 import axios from 'axios';
 
+const getCSRFToken = () => document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
+
 const api = axios.create({
     baseURL: '/api',
     headers: {
         'Content-Type': 'application/json',
-        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
+        'X-CSRF-TOKEN': getCSRFToken(),
     },
 });
 
@@ -13,7 +15,7 @@ export const createPost = async (formData: FormData) => {
         const response = await api.post('/posts', formData, {
             headers: {
                 'Content-Type': 'multipart/form-data',
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || ''
+                'X-CSRF-TOKEN': getCSRFToken(),
             }
         });
         return response.data;
@@ -63,6 +65,26 @@ export const deletePost = async (postId: number) => {
         return response.data;
     } catch (error) {
         console.error('Error deleting post:', error);
+        throw error;
+    }
+};
+
+export const likePost = async (postId: number) => {
+    try {
+        const response = await api.post(`/posts/${postId}/reactions`);
+        return response.data;
+    } catch (error) {
+        console.error('Error liking post:', error);
+        throw error;
+    }
+};
+
+export const unlikePost = async (postId: number) => {
+    try {
+        const response = await api.delete(`/posts/${postId}/reactions`);
+        return response.data;
+    } catch (error) {
+        console.error('Error unliking post:', error);
         throw error;
     }
 };

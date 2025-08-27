@@ -4,18 +4,20 @@ namespace App\Http\Controllers;
 
 use App\Models\Post;
 use App\Models\PostAttachment;
-use Illuminate\Support\Facades\Auth;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
+use Inertia\Response;
 
 class PostController extends Controller
 {
-    public function create()
+    public function create(): Response
     {
         return Inertia::render('post-create');
     }
 
-    public function edit(Post $post)
+    public function edit(Post $post): Response
     {
         if (Auth::id() !== $post->user_id) {
             abort(403);
@@ -32,7 +34,7 @@ class PostController extends Controller
         ]);
     }
 
-    public function store(Request $request)
+    public function store(Request $request): Response
     {
         $validated = $request->validate([
             'body' => 'nullable|string|max:280',
@@ -45,33 +47,17 @@ class PostController extends Controller
             ]);
         }
 
-        $post = new Post([
+        $post = Post::create([
             'body' => $validated['body'],
             'user_id' => Auth::id(),
         ]);
 
-        $post->save();
-
-        if ($request->hasFile('media') && $request->file('media')->isValid()) {
-            $file = $request->file('media');
-            $mimeType = $file->getMimeType();
-            $fileName = $post->id . '.png';
-            $file->move(public_path('attachments'), $fileName);
-            $path = 'attachments/' . $fileName;
-
-            $attachment = new PostAttachment([
-                'post_id' => $post->id,
-                'path' => $path,
-                'mime' => $mimeType,
-                'created_by' => Auth::id(),
-            ]);
-            $attachment->save();
-        }
+        $this->handleMediaUpload($request, $post);
 
         return Inertia::render('home');
     }
 
-    public function show()
+    public function show(): JsonResponse
     {
         $posts = $this->getPostsQuery()
             ->latest()
@@ -80,7 +66,7 @@ class PostController extends Controller
         return response()->json($this->transformPosts($posts));
     }
 
-    public function userPosts($user_id)
+    public function userPosts(int $user_id): JsonResponse
     {
         $posts = $this->getPostsQuery()
             ->where('user_id', $user_id)
@@ -88,6 +74,30 @@ class PostController extends Controller
             ->get(['id', 'body', 'user_id', 'created_at']);
 
         return response()->json($this->transformPosts($posts));
+    }
+
+    public function update(Request $request, Post $post): JsonResponse
+    {
+        if (Auth::id() !== $post->user_id) {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
+        $validated = $request->validate([
+            'body' => 'required|string|max:280'
+        ]);
+
+        $post->update($validated);
+        return response()->json(['message' => 'Post updated']);
+    }
+
+    public function destroy(Post $post): JsonResponse
+    {
+        if (Auth::id() !== $post->user_id) {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
+        $post->delete();
+        return response()->json(['message' => 'Post deleted']);
     }
 
     private function getPostsQuery()
@@ -100,9 +110,17 @@ class PostController extends Controller
         ]);
     }
 
-    private function transformPosts($posts)
+    private function transformPosts($posts): array
     {
-        return $posts->map(function ($post) {
+        $currentUserId = Auth::id();
+
+        return $posts->map(function ($post) use ($currentUserId) {
+            $likeCount = $post->reactions()->where('type', 'like')->count();
+            $isLiked = $post->reactions()
+                ->where('user_id', $currentUserId)
+                ->where('type', 'like')
+                ->exists();
+
             return [
                 'id' => $post->id,
                 'body' => $post->body,
@@ -118,32 +136,29 @@ class PostController extends Controller
                         'path' => $attachment->path,
                         'mime' => $attachment->mime,
                     ];
-                })
+                }),
+                'like_count' => $likeCount,
+                'is_liked' => $isLiked
             ];
-        });
+        })->toArray();
     }
 
-    public function update(Request $request, Post $post)
+    private function handleMediaUpload(Request $request, Post $post): void
     {
-        if (Auth::id() !== $post->user_id) {
-            return response()->json(['message' => 'Unauthorized'], 403);
+        if (!$request->hasFile('media') || !$request->file('media')->isValid()) {
+            return;
         }
 
-        $validated = $request->validate([
-            'body' => 'required|string|max:280'
+        $file = $request->file('media');
+        $fileName = $post->id . '.png';
+        $file->move(public_path('attachments'), $fileName);
+        $path = 'attachments/' . $fileName;
+
+        PostAttachment::create([
+            'post_id' => $post->id,
+            'path' => $path,
+            'mime' => $file->getMimeType(),
+            'created_by' => Auth::id(),
         ]);
-
-        $post->update($validated);
-        return response()->json(['message' => 'Post updated']);
-    }
-
-    public function destroy(Post $post)
-    {
-        if (Auth::id() !== $post->user_id) {
-            return response()->json(['message' => 'Unauthorized'], 403);
-        }
-
-        $post->delete();
-        return response()->json(['message' => 'Post deleted']);
     }
 }

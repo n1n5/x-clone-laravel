@@ -46,8 +46,12 @@ export interface Post {
     body: string;
     created_at: string;
     user: User;
-    attachments?: {
-        path: string;
-        mime: string;
-    }[];
+    attachments?: PostAttachment[];
+    like_count: number;
+    is_liked: boolean;
+}
+
+export interface PostAttachment {
+    path: string;
+    mime: string;
 }

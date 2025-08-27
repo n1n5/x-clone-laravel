@@ -101,18 +101,8 @@ export default function ProfilePage({ user, is_own_profile, cover_path, avatar_p
                     <div>
                         <div className="relative w-full">
                             <div className="group aspect-[3/1] w-full overflow-hidden bg-white">
-                                {coverImage ? (
-                                    <img src={coverImage} alt="Cover" height={200} width="auto" />
-                                ) : (
-                                    <div className="h-full w-full" />
-                                )}
-                                <input 
-                                    type="file" 
-                                    ref={coverInputRef} 
-                                    className="hidden" 
-                                    accept="image/*" 
-                                    onChange={handleCoverImageChange} 
-                                />
+                                {coverImage ? <img src={coverImage} alt="Cover" height={200} width="auto" /> : <div className="h-full w-full" />}
+                                <input type="file" ref={coverInputRef} className="hidden" accept="image/*" onChange={handleCoverImageChange} />
                                 {is_own_profile && (
                                     <button
                                         className="absolute top-2 right-2 cursor-pointer rounded-full bg-textDarkMode px-4 py-1 text-sm font-bold text-postInfo opacity-0 group-hover:opacity-50"
@@ -125,13 +115,7 @@ export default function ProfilePage({ user, is_own_profile, cover_path, avatar_p
                             </div>
                             <div className="group absolute left-4 aspect-square w-1/5 -translate-y-1/2 overflow-hidden rounded-full border-4 border-postInfo bg-postInfo">
                                 <img src={avatarImage} alt="Avatar" height={100} width={100} className="size-full object-cover" />
-                                <input 
-                                    type="file" 
-                                    ref={avatarInputRef} 
-                                    className="hidden" 
-                                    accept="image/*" 
-                                    onChange={handleAvatarImageChange} 
-                                />
+                                <input type="file" ref={avatarInputRef} className="hidden" accept="image/*" onChange={handleAvatarImageChange} />
                                 {is_own_profile && (
                                     <button
                                         className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 cursor-pointer rounded-full bg-textDarkMode px-4 py-1 text-sm font-bold text-postInfo opacity-0 group-hover:opacity-50"
@@ -145,13 +129,13 @@ export default function ProfilePage({ user, is_own_profile, cover_path, avatar_p
                         </div>
                         <div className="flex w-full items-center justify-end gap-2 p-2">
                             {!is_own_profile ? (
-                                <button className="cursor-pointer rounded-full bg-hoverCustom px-4 py-2 font-bold text-textDarkMode">
+                                <button className="cursor-pointer rounded-full bg-hoverCustom px-4 py-2 font-bold text-textDarkMode max-2xl:hidden">
                                     Follow
                                 </button>
                             ) : (
-                                <button className="rounded-full bg-hoverCustom px-4 py-2">
+                                <div className="rounded-full bg-hoverCustom px-4 py-2 max-2xl:hidden">
                                     <ProfilePageInfo />
-                                </button>
+                                </div>
                             )}
                         </div>
                         <div className="flex flex-col gap-2 p-4">
