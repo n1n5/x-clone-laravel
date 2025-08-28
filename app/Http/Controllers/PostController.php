@@ -6,6 +6,7 @@ use App\Models\Post;
 use App\Models\PostAttachment;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -34,7 +35,7 @@ class PostController extends Controller
         ]);
     }
 
-    public function store(Request $request): Response
+    public function store(Request $request): RedirectResponse
     {
         $validated = $request->validate([
             'body' => 'nullable|string|max:280',
@@ -54,7 +55,7 @@ class PostController extends Controller
 
         $this->handleMediaUpload($request, $post);
 
-        return Inertia::render('home');
+        return redirect()->route('home');
     }
 
     public function show(): JsonResponse
@@ -150,6 +151,7 @@ class PostController extends Controller
         }
 
         $file = $request->file('media');
+        $mimeType = $file->getMimeType();
         $fileName = $post->id . '.png';
         $file->move(public_path('attachments'), $fileName);
         $path = 'attachments/' . $fileName;
@@ -157,7 +159,7 @@ class PostController extends Controller
         PostAttachment::create([
             'post_id' => $post->id,
             'path' => $path,
-            'mime' => $file->getMimeType(),
+            'mime' => $mimeType,
             'created_by' => Auth::id(),
         ]);
     }
