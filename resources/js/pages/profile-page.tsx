@@ -93,7 +93,7 @@ export default function ProfilePage({ user, is_own_profile, cover_path, avatar_p
             <div className="flex-1 border-x-[1px] border-borderCustom lg:min-w-[600px]">
                 <div>
                     <div className="sticky top-0 z-10 flex items-center gap-8 bg-postInfo p-4 opacity-85 backdrop-blur-md">
-                        <Link href="/">
+                        <Link href={route('home')}>
                             <img src="icons/back.svg" alt="Back" width={24} height={24} />
                         </Link>
                         <h1 className="text-lg font-bold text-textDarkMode">{user.name}</h1>

@@ -45,7 +45,7 @@ export function PopularTags() {
                 <h2 className="font-bold text-textCustomDark">OpenAI</h2>
                 <span className="text-sm text-textCustom">20K Posts</span>
             </div>
-            <Link href="/" className="text-iconBlue">
+            <Link href={route('home')} className="text-iconBlue">
                 Show More
             </Link>
         </div>

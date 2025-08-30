@@ -17,10 +17,10 @@ export default function Welcome() {
                 <div className="flex-1 border-x-[1px] border-borderCustom lg:min-w-[600px]">
                     <div>
                         <div className="flex justify-around border-b-[1px] border-borderCustom px-4 pt-4 font-bold text-textCustom">
-                            <Link href="/" className="flex cursor-pointer items-center border-b-4 border-iconBlue pb-3">
+                            <Link href={route('home')} className="flex cursor-pointer items-center border-b-4 border-iconBlue pb-3">
                                 For you
                             </Link>
-                            <Link href="/" className="flex cursor-pointer items-center pb-3">
+                            <Link href={route('home')} className="flex cursor-pointer items-center pb-3">
                                 Following
                             </Link>
                         </div>

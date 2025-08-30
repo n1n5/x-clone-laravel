@@ -20,7 +20,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('/update-avatar', [ProfilePageController::class, 'updateAvatar'])->name('profile.update-avatar');
     });
 
-    Route::get('/post', [PostController::class, 'create'])->name('post');
+    Route::prefix('/post')->group(function () {
+        Route::get('/', [PostController::class, 'create'])->name('post');
+        Route::get('/{post}', [PostController::class, 'showSingle'])->name('post.show');
+    });
 });
 
 Route::prefix('api')->middleware('auth')->group(function () {

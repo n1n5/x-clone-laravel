@@ -10,11 +10,11 @@ export function RightBar() {
             <PopularTags />
             <Recommendations />
             <div className="flex flex-wrap gap-x-4 text-sm text-textCustom">
-                <Link href="/">Terms of Service</Link>
-                <Link href="/">Privacy Policy</Link>
-                <Link href="/">Cookie Policy</Link>
-                <Link href="/">Accessibility</Link>
-                <Link href="/">Ads Info</Link>
+                <Link href={route('home')}>Terms of Service</Link>
+                <Link href={route('home')}>Privacy Policy</Link>
+                <Link href={route('home')}>Cookie Policy</Link>
+                <Link href={route('home')}>Accessibility</Link>
+                <Link href={route('home')}>Ads Info</Link>
                 <span>© 2025</span>
             </div>
         </div>

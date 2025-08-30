@@ -4,7 +4,7 @@ import { PostInfo } from './post-info';
 import { PostInteraction } from './post-interaction';
 import { Avatar, AvatarImage } from './ui/avatar';
 
-export function Post({ post }: { post: PostType }) {
+export function PostDetail({ post }: { post: PostType }) {
     const { auth } = usePage<SharedData>().props;
     const is_own_profile = auth.user?.id === post.user.id;
 
@@ -12,6 +12,12 @@ export function Post({ post }: { post: PostType }) {
 
     return (
         <div className="border-y-[1px] border-borderCustom p-4">
+            <div className="flex items-center justify-between py-4">
+                <Link href={route('home')}>
+                    <img src="/profile/icons/back.svg" alt="Back" width={24} height={24} />
+                </Link>
+            </div>
+
             <div className="flex gap-4">
                 <Avatar>
                     <AvatarImage
@@ -23,27 +29,22 @@ export function Post({ post }: { post: PostType }) {
                 </Avatar>
                 <div className="flex flex-1 flex-col gap-2">
                     <div className="flex items-center justify-between gap-2">
-                        <Link href={route('post.show', { post: post.id })} className="flex-1">
-                            <div className="flex flex-wrap items-center gap-2">
-                                <h1 className="text-md font-bold text-textDarkMode">{post.user.name}</h1>
-                                <span className="text-textCustom">@{post.user.username}</span>
-                                <span className="text-textCustom">{post.created_at}</span>
-                            </div>
-                        </Link>
+                        <div className="flex flex-wrap items-center gap-2">
+                            <h1 className="text-md font-bold text-textDarkMode">{post.user.name}</h1>
+                            <span className="text-textCustom">@{post.user.username}</span>
+                            <span className="text-textCustom">{post.created_at}</span>
+                        </div>
                         <PostInfo is_own_profile={is_own_profile} postId={post.id} postBody={post.body} />
                     </div>
+                    <p className="text-textDarkMode">{post.body}</p>
 
-                    <Link href={route('post.show', { post: post.id })}>
-                        <p className="text-textDarkMode">{post.body}</p>
-                        {post.attachments && post.attachments.length > 0 && (
-                            <div>
-                                {post.attachments.map((attachment) => (
-                                    <img key={attachment.path} src={getImageSrc(attachment.path)} alt="Post attachment" />
-                                ))}
-                            </div>
-                        )}
-                    </Link>
-
+                    {post.attachments && post.attachments.length > 0 && (
+                        <div>
+                            {post.attachments.map((attachment) => (
+                                <img key={attachment.path} src={getImageSrc(attachment.path)} alt="Post attachment" />
+                            ))}
+                        </div>
+                    )}
                     <PostInteraction postId={post.id} initialLikeCount={post.like_count} initialIsLiked={post.is_liked} />
                 </div>
             </div>

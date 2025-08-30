@@ -67,6 +67,45 @@ class PostController extends Controller
         return response()->json($this->transformPosts($posts));
     }
 
+    public function showSingle(Post $post): Response
+    {
+        $post->load(['user', 'attachments', 'reactions']);
+
+        return Inertia::render('post-show', [
+            'post' => $this->transformPost($post)
+        ]);
+    }
+
+    private function transformPost(Post $post): array
+    {
+        $currentUserId = Auth::id();
+        $likeCount = $post->reactions()->where('type', 'like')->count();
+        $isLiked = $post->reactions()
+            ->where('user_id', $currentUserId)
+            ->where('type', 'like')
+            ->exists();
+
+        return [
+            'id' => $post->id,
+            'body' => $post->body,
+            'created_at' => $post->created_at->toDateTimeString(),
+            'user' => [
+                'id' => $post->user->id,
+                'name' => $post->user->name,
+                'username' => $post->user->username,
+                'avatar_path' => $post->user->avatar_path
+            ],
+            'attachments' => $post->attachments->map(function ($attachment) {
+                return [
+                    'path' => $attachment->path,
+                    'mime' => $attachment->mime,
+                ];
+            }),
+            'like_count' => $likeCount,
+            'is_liked' => $isLiked
+        ];
+    }
+
     public function userPosts(int $user_id): JsonResponse
     {
         $posts = $this->getPostsQuery()

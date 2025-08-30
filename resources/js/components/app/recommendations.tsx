@@ -40,7 +40,7 @@ export function Recommendations() {
                 </div>
                 <button className="cursor-pointer rounded-full bg-hoverCustom px-4 py-1 font-semibold text-textDarkMode">Follow</button>
             </div>
-            <Link href="/" className="text-iconBlue">
+            <Link href={route('home')} className="text-iconBlue">
                 Show More
             </Link>
         </div>
