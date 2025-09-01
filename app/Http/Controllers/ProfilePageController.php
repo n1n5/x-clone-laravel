@@ -3,32 +3,36 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
+use Inertia\Response;
 
 class ProfilePageController extends Controller
 {
-    public function show($username)
+    public function show(string $username): Response
     {
+        /** @var User $user */
         $user = User::where('username', $username)->firstOrFail();
+        /** @var User|null $currentUser */
+        $currentUser = Auth::user();
 
-        $coverUrl = $user->cover_path ? asset($user->cover_path) : null;
-        $avatarUrl = $user->avatar_path ? asset($user->avatar_path) : null;
+        $isOwnProfile = $currentUser && $currentUser->id === $user->id;
+        $isFollowing = $currentUser && !$isOwnProfile
+            ? $currentUser->following()->where('users.id', $user->id)->exists()
+            : false;
+
+        $followerCount = $user->followers()->count();
+        $followingCount = $user->following()->count();
 
         return Inertia::render('profile-page', [
-            'user' => [
-                'id' => $user->id,
-                'name' => $user->name,
-                'username' => $user->username,
-                'about' => $user->about,
-                'created_at' => $user->created_at->toDateTimeString(),
-                'cover_path' => $coverUrl,
-                'avatar_path' => $avatarUrl
-            ],
-            'is_own_profile' => Auth::check() && Auth::id() === $user->id,
-            'cover_path' => $coverUrl,
-            'avatar_path' => $avatarUrl
+            'user' => $user,
+            'is_own_profile' => $isOwnProfile,
+            'cover_path' => $user->cover_path,
+            'avatar_path' => $user->avatar_path,
+            'is_following' => $isFollowing,
+            'follower_count' => $followerCount,
+            'following_count' => $followingCount,
         ]);
     }
 

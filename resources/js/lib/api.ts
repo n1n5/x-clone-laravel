@@ -1,6 +1,7 @@
-import axios from 'axios';
+import axios, { AxiosResponse } from 'axios';
 
-const getCSRFToken = () => document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
+const getCSRFToken = (): string => 
+    document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
 
 const api = axios.create({
     baseURL: '/api',
@@ -10,28 +11,39 @@ const api = axios.create({
     },
 });
 
-export const createPost = async (formData: FormData) => {
+type ApiResponse<T = any> = {
+    data?: T;
+    error?: boolean;
+    message?: string;
+    errors?: Record<string, string[]>;
+};
+
+const handleApiError = (error: any, action: string): ApiResponse => {
+    console.error(`Error ${action}:`, error);
+    return {
+        error: true,
+        message: error.response?.data?.message || `Failed to ${action}`,
+        errors: error.response?.data?.errors || {},
+    };
+};
+
+export const createPost = async (formData: FormData): Promise<ApiResponse> => {
     try {
-        const response = await api.post('/posts', formData, {
+        const response: AxiosResponse = await api.post('/posts', formData, {
             headers: {
                 'Content-Type': 'multipart/form-data',
                 'X-CSRF-TOKEN': getCSRFToken(),
-            }
+            },
         });
         return response.data;
-    } catch (error: any) {
-        console.error('Error creating post:', error);
-        return {
-            error: true,
-            message: error.response?.data?.message || 'Failed to create post',
-            errors: error.response?.data?.errors || {}
-        };
+    } catch (error) {
+        return handleApiError(error, 'creating post');
     }
 };
 
-export const updatePost = async (postId: number, body: string) => {
+export const updatePost = async (postId: number, body: string): Promise<any> => {
     try {
-        const response = await api.put(`/posts/${postId}`, { body });
+        const response: AxiosResponse = await api.put(`/posts/${postId}`, { body });
         return response.data;
     } catch (error) {
         console.error('Error updating post:', error);
@@ -39,9 +51,9 @@ export const updatePost = async (postId: number, body: string) => {
     }
 };
 
-export const getPosts = async () => {
+export const getPosts = async (): Promise<any> => {
     try {
-        const response = await api.get('/posts');
+        const response: AxiosResponse = await api.get('/posts');
         return response.data;
     } catch (error) {
         console.error('Error fetching posts:', error);
@@ -49,9 +61,9 @@ export const getPosts = async () => {
     }
 };
 
-export const getUserPosts = async (userId: number) => {
+export const getUserPosts = async (userId: number): Promise<any> => {
     try {
-        const response = await api.get(`/users/${userId}/posts`);
+        const response: AxiosResponse = await api.get(`/users/${userId}/posts`);
         return response.data;
     } catch (error) {
         console.error('Error fetching user posts:', error);
@@ -59,9 +71,9 @@ export const getUserPosts = async (userId: number) => {
     }
 };
 
-export const deletePost = async (postId: number) => {
+export const deletePost = async (postId: number): Promise<any> => {
     try {
-        const response = await api.delete(`/posts/${postId}`);
+        const response: AxiosResponse = await api.delete(`/posts/${postId}`);
         return response.data;
     } catch (error) {
         console.error('Error deleting post:', error);
@@ -69,9 +81,9 @@ export const deletePost = async (postId: number) => {
     }
 };
 
-export const likePost = async (postId: number) => {
+export const likePost = async (postId: number): Promise<any> => {
     try {
-        const response = await api.post(`/posts/${postId}/reactions`);
+        const response: AxiosResponse = await api.post(`/posts/${postId}/reactions`);
         return response.data;
     } catch (error) {
         console.error('Error liking post:', error);
@@ -79,12 +91,32 @@ export const likePost = async (postId: number) => {
     }
 };
 
-export const unlikePost = async (postId: number) => {
+export const unlikePost = async (postId: number): Promise<any> => {
     try {
-        const response = await api.delete(`/posts/${postId}/reactions`);
+        const response: AxiosResponse = await api.delete(`/posts/${postId}/reactions`);
         return response.data;
     } catch (error) {
         console.error('Error unliking post:', error);
+        throw error;
+    }
+};
+
+export const followUser = async (userId: number): Promise<any> => {
+    try {
+        const response: AxiosResponse = await api.post('/follow', { user_id: userId });
+        return response.data;
+    } catch (error) {
+        console.error('Error following user:', error);
+        throw error;
+    }
+};
+
+export const unfollowUser = async (userId: number): Promise<any> => {
+    try {
+        const response: AxiosResponse = await api.post('/unfollow', { user_id: userId });
+        return response.data;
+    } catch (error) {
+        console.error('Error unfollowing user:', error);
         throw error;
     }
 };

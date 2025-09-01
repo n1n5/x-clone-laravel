@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Spatie\Sluggable\HasSlug;
@@ -11,9 +12,7 @@ use Spatie\Sluggable\SlugOptions;
 
 class User extends Authenticatable implements MustVerifyEmail
 {
-    /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable;
-    use HasSlug;
+    use HasFactory, Notifiable, HasSlug;
 
     /**
      * The attributes that are mass assignable.
@@ -27,7 +26,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'password',
         'cover_path',
         'avatar_path',
-        'about'
+        'about',
     ];
 
     /**
@@ -59,5 +58,20 @@ class User extends Authenticatable implements MustVerifyEmail
             ->generateSlugsFrom('name')
             ->saveSlugsTo('username')
             ->doNotGenerateSlugsOnUpdate();
+    }
+
+    public function followers(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'followers', 'user_id', 'follower_id');
+    }
+
+    public function following(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'followers', 'follower_id', 'user_id');
+    }
+
+    public function isFollowing(User $user): bool
+    {
+        return $this->following()->where('users.id', $user->id)->exists();
     }
 }

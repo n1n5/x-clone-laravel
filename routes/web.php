@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
+use App\Http\Controllers\FollowController;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\PostReactionController;
 use App\Http\Controllers\ProfilePageController;
@@ -14,29 +15,31 @@ Route::middleware('guest')->group(function () {
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('home', fn() => Inertia::render('home'))->name('home');
 
-    Route::prefix('/profile/{username}')->group(function () {
+    Route::prefix('profile/{username}')->group(function () {
         Route::get('/', [ProfilePageController::class, 'show'])->name('profile');
-        Route::post('/update-cover', [ProfilePageController::class, 'updateCover'])->name('profile.update-cover');
-        Route::post('/update-avatar', [ProfilePageController::class, 'updateAvatar'])->name('profile.update-avatar');
+        Route::post('update-cover', [ProfilePageController::class, 'updateCover'])->name('profile.update-cover');
+        Route::post('update-avatar', [ProfilePageController::class, 'updateAvatar'])->name('profile.update-avatar');
     });
 
-    Route::prefix('/post')->group(function () {
+    Route::prefix('post')->group(function () {
         Route::get('/', [PostController::class, 'create'])->name('post');
-        Route::get('/{post}', [PostController::class, 'showSingle'])->name('post.show');
+        Route::get('{post}', [PostController::class, 'showSingle'])->name('post.show');
     });
 });
 
 Route::prefix('api')->middleware('auth')->group(function () {
-    Route::prefix('/posts')->group(function () {
+    Route::prefix('posts')->group(function () {
         Route::get('/', [PostController::class, 'show']);
         Route::post('/', [PostController::class, 'store'])->name('posts.store');
-        Route::put('/{post}', [PostController::class, 'update'])->name('posts.update');
-        Route::delete('/{post}', [PostController::class, 'destroy'])->name('posts.destroy');
-        Route::post('/{post}/reactions', [PostReactionController::class, 'store'])->name('posts.reactions.store');
-        Route::delete('/{post}/reactions', [PostReactionController::class, 'destroy'])->name('posts.reactions.destroy');
+        Route::put('{post}', [PostController::class, 'update'])->name('posts.update');
+        Route::delete('{post}', [PostController::class, 'destroy'])->name('posts.destroy');
+        Route::post('{post}/reactions', [PostReactionController::class, 'store'])->name('posts.reactions.store');
+        Route::delete('{post}/reactions', [PostReactionController::class, 'destroy'])->name('posts.reactions.destroy');
     });
 
-    Route::get('/users/{user}/posts', [PostController::class, 'userPosts'])->name('api.users.posts');
+    Route::get('users/{user}/posts', [PostController::class, 'userPosts'])->name('api.users.posts');
+    Route::post('follow', [FollowController::class, 'follow'])->name('api.follow');
+    Route::post('unfollow', [FollowController::class, 'unfollow'])->name('api.unfollow');
 });
 
 require __DIR__ . '/settings.php';
