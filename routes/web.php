@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\FollowController;
+use App\Http\Controllers\NonFollowedUsersController;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\PostReactionController;
 use App\Http\Controllers\ProfilePageController;
@@ -38,6 +39,7 @@ Route::prefix('api')->middleware('auth')->group(function () {
     });
 
     Route::get('users/{user}/posts', [PostController::class, 'userPosts'])->name('api.users.posts');
+    Route::get('non-followed-users', [NonFollowedUsersController::class, 'index'])->name('api.non-followed-users');
     Route::post('follow', [FollowController::class, 'follow'])->name('api.follow');
     Route::post('unfollow', [FollowController::class, 'unfollow'])->name('api.unfollow');
 });

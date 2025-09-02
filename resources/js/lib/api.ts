@@ -1,3 +1,4 @@
+import { User } from '@/types';
 import axios, { AxiosResponse } from 'axios';
 
 const getCSRFToken = (): string => 
@@ -107,6 +108,16 @@ export const followUser = async (userId: number): Promise<any> => {
         return response.data;
     } catch (error) {
         console.error('Error following user:', error);
+        throw error;
+    }
+};
+
+export const getNonFollowedUsers = async (): Promise<User[]> => {
+    try {
+        const response: AxiosResponse = await api.get('/non-followed-users');
+        return response.data;
+    } catch (error) {
+        console.error('Error fetching non-followed users:', error);
         throw error;
     }
 };

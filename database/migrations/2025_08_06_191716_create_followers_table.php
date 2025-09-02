@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('user_id')->constrained('users');
             $table->foreignId('follower_id')->constrained('users');
-            $table->timestamp('created_at')->nullable();
+            $table->timestamps();
         });
     }
 

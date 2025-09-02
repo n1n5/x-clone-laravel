@@ -161,7 +161,7 @@ export default function ProfilePage({
                                 isFollowing ? 'bg-textCustom text-textDarkMode' : 'bg-hoverCustom'
                             }`}
                         >
-                            {isLoading ? 'Processing...' : isFollowing ? 'Unfollow' : 'Follow'}
+                            {isLoading ? 'Following...' : isFollowing ? 'Unfollow' : 'Follow'}
                         </button>
                     ) : (
                         <div className="rounded-full bg-hoverCustom px-4 py-2 max-2xl:hidden">
