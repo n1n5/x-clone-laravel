@@ -1,8 +1,7 @@
 import { User } from '@/types';
 import axios, { AxiosResponse } from 'axios';
 
-const getCSRFToken = (): string => 
-    document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
+const getCSRFToken = (): string => document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
 
 const api = axios.create({
     baseURL: '/api',

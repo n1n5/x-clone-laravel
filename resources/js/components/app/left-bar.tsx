@@ -3,47 +3,55 @@ import { Link, usePage } from '@inertiajs/react';
 import { ProfileInfo } from './profile-info';
 import { Avatar, AvatarImage } from './ui/avatar';
 
-const menuList = [
+interface MenuItem {
+    id: number;
+    name: string;
+    link: string;
+    icon: string;
+    params?: Record<string, string>;
+}
+
+const menuList: MenuItem[] = [
     {
         id: 1,
         name: 'Home',
-        link: '/',
+        link: 'home',
         icon: 'home.svg',
     },
     {
         id: 2,
         name: 'Explore',
-        link: '/',
+        link: 'explore',
         icon: 'explore.svg',
     },
     {
         id: 3,
         name: 'Notifications',
-        link: '/',
+        link: 'home',
         icon: 'notifications.svg',
     },
     {
         id: 4,
         name: 'Bookmarks',
-        link: '/',
+        link: 'home',
         icon: 'bookmarks.svg',
     },
     {
         id: 5,
         name: 'Communities',
-        link: '/',
+        link: 'home',
         icon: 'communities.svg',
     },
     {
         id: 6,
         name: 'Profile',
-        link: '/',
+        link: 'profile',
         icon: 'profile.svg',
     },
     {
         id: 7,
         name: 'More',
-        link: '/',
+        link: 'home',
         icon: 'more.svg',
     },
 ];
@@ -56,7 +64,7 @@ export function LeftBar() {
         if (item.name === 'Profile' && auth.user) {
             return {
                 ...item,
-                link: `/profile/${auth.user.username}`,
+                params: { username: auth.user.username },
             };
         }
         return item;
@@ -67,7 +75,11 @@ export function LeftBar() {
             <div className="flex flex-col items-center gap-4 text-lg 2xl:items-start">
                 <div className="flex flex-col gap-4">
                     {menuItems.map((item) => (
-                        <Link href={item.link} key={item.id} className="flex items-center gap-4 rounded-full p-2 hover:bg-hoverCustom">
+                        <Link
+                            href={route(item.link, item.params || {})}
+                            key={item.id}
+                            className="flex items-center gap-4 rounded-full p-2 hover:bg-hoverCustom"
+                        >
                             <img src={`/icons/${item.icon}`} alt={item.name} width={24} height={24} />
                             <span className="hidden text-textDarkMode 2xl:inline">{item.name}</span>
                         </Link>

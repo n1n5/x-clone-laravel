@@ -58,9 +58,16 @@ class PostController extends Controller
         return redirect()->route('home');
     }
 
-    public function show(): JsonResponse
+    public function show(Request $request): JsonResponse
     {
-        $posts = $this->getPostsQuery()
+        $query = $this->getPostsQuery();
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
+
+        $followedUserIds = $user->following()->pluck('users.id');
+        $followedUserIds[] = $user->id;
+
+        $posts = $query->whereIn('user_id', $followedUserIds)
             ->latest()
             ->get(['id', 'body', 'user_id', 'created_at']);
 

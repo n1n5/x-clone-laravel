@@ -15,6 +15,7 @@ Route::middleware('guest')->group(function () {
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('home', fn() => Inertia::render('home'))->name('home');
+    Route::get('explore', fn() => Inertia::render('explore'))->name('explore');
 
     Route::prefix('profile/{username}')->group(function () {
         Route::get('/', [ProfilePageController::class, 'show'])->name('profile');
