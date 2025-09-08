@@ -8,10 +8,21 @@ import { initializeTheme } from './hooks/use-appearance';
 const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
 
 createInertiaApp({
-    title: (title) => title ? `${title} - ${appName}` : appName,
+    title: (title) => (title ? `${title} - ${appName}` : appName),
     resolve: (name) => resolvePageComponent(`./pages/${name}.tsx`, import.meta.glob('./pages/**/*.tsx')),
     setup({ el, App, props }) {
         const root = createRoot(el);
+
+        const head = document.head;
+        const fontPreconnect = document.createElement('link');
+        fontPreconnect.rel = 'preconnect';
+        fontPreconnect.href = 'https://fonts.bunny.net';
+        head.appendChild(fontPreconnect);
+
+        const fontLink = document.createElement('link');
+        fontLink.href = 'https://fonts.bunny.net/css?family=instrument-sans:400,500,600';
+        fontLink.rel = 'stylesheet';
+        head.appendChild(fontLink);
 
         root.render(<App {...props} />);
     },

@@ -1,3 +1,4 @@
+import { Feed } from '@/components/app/feed';
 import { LeftBar } from '@/components/app/left-bar';
 import { RightBar } from '@/components/app/right-bar';
 import { Head } from '@inertiajs/react';
@@ -10,6 +11,9 @@ export default function Explore() {
             </div>
             <div className="flex-1 border-x-[1px] border-borderCustom lg:min-w-[600px]">
                 <Head title="Explore" />
+                <div>
+                    <Feed key="explore-feed" feedType="nonFollowed" />
+                </div>
             </div>
             <div className="ml-4 hidden flex-1 md:ml-8 lg:flex">
                 <RightBar />

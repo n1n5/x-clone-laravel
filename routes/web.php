@@ -32,6 +32,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 Route::prefix('api')->middleware('auth')->group(function () {
     Route::prefix('posts')->group(function () {
         Route::get('/', [PostController::class, 'show']);
+        Route::get('non-followed', [PostController::class, 'nonFollowedPosts'])->name('posts.non-followed');
         Route::post('/', [PostController::class, 'store'])->name('posts.store');
         Route::put('{post}', [PostController::class, 'update'])->name('posts.update');
         Route::delete('{post}', [PostController::class, 'destroy'])->name('posts.destroy');

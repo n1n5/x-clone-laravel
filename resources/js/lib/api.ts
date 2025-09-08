@@ -1,4 +1,4 @@
-import { User } from '@/types';
+import { Post, User } from '@/types';
 import axios, { AxiosResponse } from 'axios';
 
 const getCSRFToken = (): string => document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
@@ -121,6 +121,15 @@ export const getNonFollowedUsers = async (): Promise<User[]> => {
     }
 };
 
+export const getNonFollowedPosts = async (): Promise<Post[]> => {
+    try {
+        const response: AxiosResponse = await api.get('/posts/non-followed');
+        return response.data;
+    } catch (error) {
+        console.error('Error fetching non-followed posts:', error);
+        throw error;
+    }
+};
 export const unfollowUser = async (userId: number): Promise<any> => {
     try {
         const response: AxiosResponse = await api.post('/unfollow', { user_id: userId });

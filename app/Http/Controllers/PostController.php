@@ -123,6 +123,21 @@ class PostController extends Controller
         return response()->json($this->transformPosts($posts));
     }
 
+    public function nonFollowedPosts(): JsonResponse
+    {
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
+
+        $followedUserIds = $user->following()->pluck('users.id');
+        $excludedUserIds = $followedUserIds->push($user->id);
+
+        $posts = $this->getPostsQuery()
+            ->whereNotIn('user_id', $excludedUserIds)
+            ->latest()
+            ->get(['id', 'body', 'user_id', 'created_at']);
+
+        return response()->json($this->transformPosts($posts));
+    }
     public function update(Request $request, Post $post): JsonResponse
     {
         if (Auth::id() !== $post->user_id) {
