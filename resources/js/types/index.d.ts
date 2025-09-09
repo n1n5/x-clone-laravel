@@ -49,9 +49,18 @@ export interface Post {
     attachments?: PostAttachment[];
     like_count: number;
     is_liked: boolean;
+    comment_count: number;
+    comments?: PostComment[];
 }
 
 export interface PostAttachment {
     path: string;
     mime: string;
+}
+
+export interface PostComment {
+    id: number;
+    comment: string;
+    created_at: string;
+    user: User;
 }

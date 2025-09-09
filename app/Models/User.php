@@ -9,6 +9,8 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use App\Models\Comment;
 
 class User extends Authenticatable implements MustVerifyEmail
 {
@@ -73,5 +75,10 @@ class User extends Authenticatable implements MustVerifyEmail
     public function isFollowing(User $user): bool
     {
         return $this->following()->where('users.id', $user->id)->exists();
+    }
+
+    public function comments(): HasMany
+    {
+        return $this->hasMany(Comment::class);
     }
 }

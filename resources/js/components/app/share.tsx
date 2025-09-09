@@ -56,10 +56,10 @@ export function Share() {
             const result = await createPost(formData);
 
             if (result.error) {
-                setErrors(result.errors || {});
-                if (result.message) {
-                    setErrors((prev) => ({ ...prev, _message: result.message }));
-                }
+                setErrors({
+                    ...(result.errors || {}),
+                    ...(result.message ? { _message: result.message } : {}),
+                });
             } else {
                 router.visit(route('home'));
             }

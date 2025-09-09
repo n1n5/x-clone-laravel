@@ -44,7 +44,12 @@ export function Post({ post }: { post: PostType }) {
                         )}
                     </Link>
 
-                    <PostInteraction postId={post.id} initialLikeCount={post.like_count} initialIsLiked={post.is_liked} />
+                    <PostInteraction
+                        postId={post.id}
+                        initialLikeCount={post.like_count}
+                        initialIsLiked={post.is_liked}
+                        commentCount={post.comment_count}
+                    />
                 </div>
             </div>
         </div>

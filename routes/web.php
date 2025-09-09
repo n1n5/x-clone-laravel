@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
+use App\Http\Controllers\CommentController;
 use App\Http\Controllers\FollowController;
 use App\Http\Controllers\NonFollowedUsersController;
 use App\Http\Controllers\PostController;
@@ -38,6 +39,11 @@ Route::prefix('api')->middleware('auth')->group(function () {
         Route::delete('{post}', [PostController::class, 'destroy'])->name('posts.destroy');
         Route::post('{post}/reactions', [PostReactionController::class, 'store'])->name('posts.reactions.store');
         Route::delete('{post}/reactions', [PostReactionController::class, 'destroy'])->name('posts.reactions.destroy');
+    });
+
+    Route::prefix('comments')->group(function () {
+        Route::get('{post}', [CommentController::class, 'index'])->name('comments.index');
+        Route::post('/', [CommentController::class, 'store'])->name('comments.store');
     });
 
     Route::get('users/{user}/posts', [PostController::class, 'userPosts'])->name('api.users.posts');

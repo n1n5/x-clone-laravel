@@ -60,14 +60,12 @@ class PostController extends Controller
 
     public function show(Request $request): JsonResponse
     {
-        $query = $this->getPostsQuery();
         /** @var \App\Models\User $user */
         $user = Auth::user();
+        $followedUserIds = $user->following()->pluck('users.id')->push($user->id);
 
-        $followedUserIds = $user->following()->pluck('users.id');
-        $followedUserIds[] = $user->id;
-
-        $posts = $query->whereIn('user_id', $followedUserIds)
+        $posts = $this->getPostsQuery()
+            ->whereIn('user_id', $followedUserIds)
             ->latest()
             ->get(['id', 'body', 'user_id', 'created_at']);
 
@@ -76,41 +74,11 @@ class PostController extends Controller
 
     public function showSingle(Post $post): Response
     {
-        $post->load(['user', 'attachments', 'reactions']);
+        $post->load(['user', 'attachments', 'reactions', 'comments']);
 
         return Inertia::render('post-show', [
             'post' => $this->transformPost($post)
         ]);
-    }
-
-    private function transformPost(Post $post): array
-    {
-        $currentUserId = Auth::id();
-        $likeCount = $post->reactions()->where('type', 'like')->count();
-        $isLiked = $post->reactions()
-            ->where('user_id', $currentUserId)
-            ->where('type', 'like')
-            ->exists();
-
-        return [
-            'id' => $post->id,
-            'body' => $post->body,
-            'created_at' => $post->created_at->toDateTimeString(),
-            'user' => [
-                'id' => $post->user->id,
-                'name' => $post->user->name,
-                'username' => $post->user->username,
-                'avatar_path' => $post->user->avatar_path
-            ],
-            'attachments' => $post->attachments->map(function ($attachment) {
-                return [
-                    'path' => $attachment->path,
-                    'mime' => $attachment->mime,
-                ];
-            }),
-            'like_count' => $likeCount,
-            'is_liked' => $isLiked
-        ];
     }
 
     public function userPosts(int $user_id): JsonResponse
@@ -127,9 +95,9 @@ class PostController extends Controller
     {
         /** @var \App\Models\User $user */
         $user = Auth::user();
-
-        $followedUserIds = $user->following()->pluck('users.id');
-        $excludedUserIds = $followedUserIds->push($user->id);
+        $excludedUserIds = $user->following()
+            ->pluck('users.id')
+            ->push($user->id);
 
         $posts = $this->getPostsQuery()
             ->whereNotIn('user_id', $excludedUserIds)
@@ -138,6 +106,7 @@ class PostController extends Controller
 
         return response()->json($this->transformPosts($posts));
     }
+
     public function update(Request $request, Post $post): JsonResponse
     {
         if (Auth::id() !== $post->user_id) {
@@ -149,6 +118,7 @@ class PostController extends Controller
         ]);
 
         $post->update($validated);
+
         return response()->json(['message' => 'Post updated']);
     }
 
@@ -159,6 +129,7 @@ class PostController extends Controller
         }
 
         $post->delete();
+
         return response()->json(['message' => 'Post deleted']);
     }
 
@@ -169,7 +140,34 @@ class PostController extends Controller
                 $query->select('id', 'name', 'username', 'avatar_path');
             },
             'attachments'
-        ]);
+        ])->withCount('comments');
+    }
+
+    private function transformPost(Post $post): array
+    {
+        $currentUserId = Auth::id();
+
+        return [
+            'id' => $post->id,
+            'body' => $post->body,
+            'created_at' => $post->created_at->toDateTimeString(),
+            'user' => [
+                'id' => $post->user->id,
+                'name' => $post->user->name,
+                'username' => $post->user->username,
+                'avatar_path' => $post->user->avatar_path
+            ],
+            'attachments' => $post->attachments->map(fn($attachment) => [
+                'path' => $attachment->path,
+                'mime' => $attachment->mime,
+            ]),
+            'like_count' => $post->reactions()->where('type', 'like')->count(),
+            'is_liked' => $post->reactions()
+                ->where('user_id', $currentUserId)
+                ->where('type', 'like')
+                ->exists(),
+            'comment_count' => $post->comments()->count()
+        ];
     }
 
     private function transformPosts($posts): array
@@ -177,12 +175,6 @@ class PostController extends Controller
         $currentUserId = Auth::id();
 
         return $posts->map(function ($post) use ($currentUserId) {
-            $likeCount = $post->reactions()->where('type', 'like')->count();
-            $isLiked = $post->reactions()
-                ->where('user_id', $currentUserId)
-                ->where('type', 'like')
-                ->exists();
-
             return [
                 'id' => $post->id,
                 'body' => $post->body,
@@ -193,14 +185,16 @@ class PostController extends Controller
                     'username' => $post->user->username,
                     'avatar_path' => $post->user->avatar_path
                 ],
-                'attachments' => $post->attachments->map(function ($attachment) {
-                    return [
-                        'path' => $attachment->path,
-                        'mime' => $attachment->mime,
-                    ];
-                }),
-                'like_count' => $likeCount,
-                'is_liked' => $isLiked
+                'attachments' => $post->attachments->map(fn($attachment) => [
+                    'path' => $attachment->path,
+                    'mime' => $attachment->mime,
+                ]),
+                'like_count' => $post->reactions()->where('type', 'like')->count(),
+                'is_liked' => $post->reactions()
+                    ->where('user_id', $currentUserId)
+                    ->where('type', 'like')
+                    ->exists(),
+                'comment_count' => $post->comments_count
             ];
         })->toArray();
     }
@@ -214,8 +208,9 @@ class PostController extends Controller
         $file = $request->file('media');
         $mimeType = $file->getMimeType();
         $fileName = $post->id . '.png';
-        $file->move(public_path('attachments'), $fileName);
         $path = 'attachments/' . $fileName;
+
+        $file->move(public_path('attachments'), $fileName);
 
         PostAttachment::create([
             'post_id' => $post->id,
