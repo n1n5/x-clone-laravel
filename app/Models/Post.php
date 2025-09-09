@@ -16,7 +16,10 @@ class Post extends Model
         'body',
         'user_id',
         'group_id',
-        'deleted_by'
+        'deleted_by',
+        'repost_of_post_id',
+        'repost_user_id',
+        'repost_count'
     ];
 
     protected $dates = ['deleted_at'];
@@ -29,6 +32,21 @@ class Post extends Model
     public function group(): BelongsTo
     {
         return $this->belongsTo(Group::class);
+    }
+
+    public function repostOriginal(): BelongsTo
+    {
+        return $this->belongsTo(Post::class, 'repost_of_post_id');
+    }
+
+    public function reposts(): HasMany
+    {
+        return $this->hasMany(Post::class, 'repost_of_post_id');
+    }
+
+    public function repostUser(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'repost_user_id');
     }
 
     public function attachments(): HasMany

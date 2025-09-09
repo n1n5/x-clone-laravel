@@ -133,23 +133,70 @@ class PostController extends Controller
         return response()->json(['message' => 'Post deleted']);
     }
 
+    public function repost(Post $post): JsonResponse
+    {
+        $originalPost = $post->repost_of_post_id ? $post->repostOriginal : $post;
+        $currentUserId = Auth::id();
+
+        $existingRepost = Post::where('user_id', $currentUserId)
+            ->where('repost_of_post_id', $originalPost->id)
+            ->first();
+
+        if ($existingRepost) {
+            $existingRepost->delete();
+            $originalPost->decrement('repost_count');
+            
+            return response()->json([
+                'message' => 'Post unreposted',
+                'repost_count' => $originalPost->repost_count,
+                'is_reposted' => false
+            ]);
+        }
+
+        $repost = Post::create([
+            'user_id' => $currentUserId,
+            'repost_of_post_id' => $originalPost->id,
+            'repost_user_id' => $currentUserId,
+        ]);
+
+        $originalPost->increment('repost_count');
+        $repost->load(['user', 'repostOriginal.user', 'repostOriginal.attachments']);
+
+        return response()->json([
+            ...$this->transformPost($originalPost),
+            'repost_count' => $originalPost->repost_count,
+            'is_reposted' => true
+        ]);
+    }
+
     private function getPostsQuery()
     {
+        $currentUserId = Auth::id();
+
         return Post::with([
             'user' => function ($query) {
                 $query->select('id', 'name', 'username', 'avatar_path');
             },
-            'attachments'
-        ])->withCount('comments');
+            'attachments',
+            'repostOriginal.user',
+            'repostOriginal.attachments'
+        ])
+        ->withCount('comments')
+        ->addSelect([
+            'is_reposted' => Post::selectRaw('COUNT(*) > 0')
+                ->whereColumn('repost_of_post_id', 'posts.id')
+                ->where('user_id', $currentUserId)
+        ]);
     }
 
     private function transformPost(Post $post): array
     {
         $currentUserId = Auth::id();
+        $isRepost = !is_null($post->repost_of_post_id);
+        $isReposted = $post->is_reposted;
 
-        return [
+        $baseData = [
             'id' => $post->id,
-            'body' => $post->body,
             'created_at' => $post->created_at->toDateTimeString(),
             'user' => [
                 'id' => $post->user->id,
@@ -157,9 +204,60 @@ class PostController extends Controller
                 'username' => $post->user->username,
                 'avatar_path' => $post->user->avatar_path
             ],
-            'attachments' => $post->attachments->map(fn($attachment) => [
-                'path' => $attachment->path,
-                'mime' => $attachment->mime,
+            'repost_count' => $post->repost_count,
+            'is_repost' => $isRepost,
+            'is_reposted' => $isReposted,
+            'like_count' => 0,
+            'is_liked' => false,
+            'comment_count' => 0
+        ];
+
+        if ($isRepost && $post->repostOriginal) {
+            $original = $post->repostOriginal;
+            $baseData['original_post'] = $this->buildOriginalPostData($original, $currentUserId);
+        } else {
+            $baseData = array_merge($baseData, $this->buildPostData($post, $currentUserId));
+            if ($isRepost) {
+                $baseData['is_repost'] = false;
+            }
+        }
+
+        return $baseData;
+    }
+
+    private function buildOriginalPostData(Post $original, int $currentUserId): array
+    {
+        return [
+            'id' => $original->id,
+            'body' => $original->body,
+            'created_at' => $original->created_at->toDateTimeString(),
+            'user' => [
+                'id' => $original->user->id,
+                'name' => $original->user->name,
+                'username' => $original->user->username,
+                'avatar_path' => $original->user->avatar_path
+            ],
+            'attachments' => $original->attachments->map(fn($a) => [
+                'path' => $a->path,
+                'mime' => $a->mime
+            ]),
+            'like_count' => $original->reactions()->where('type', 'like')->count(),
+            'is_liked' => $original->reactions()
+                ->where('user_id', $currentUserId)
+                ->where('type', 'like')
+                ->exists(),
+            'comment_count' => $original->comments()->count(),
+            'repost_count' => $original->repost_count
+        ];
+    }
+
+    private function buildPostData(Post $post, int $currentUserId): array
+    {
+        return [
+            'body' => $post->body,
+            'attachments' => $post->attachments->map(fn($a) => [
+                'path' => $a->path,
+                'mime' => $a->mime
             ]),
             'like_count' => $post->reactions()->where('type', 'like')->count(),
             'is_liked' => $post->reactions()
@@ -172,30 +270,8 @@ class PostController extends Controller
 
     private function transformPosts($posts): array
     {
-        $currentUserId = Auth::id();
-
-        return $posts->map(function ($post) use ($currentUserId) {
-            return [
-                'id' => $post->id,
-                'body' => $post->body,
-                'created_at' => $post->created_at->toDateTimeString(),
-                'user' => [
-                    'id' => $post->user->id,
-                    'name' => $post->user->name,
-                    'username' => $post->user->username,
-                    'avatar_path' => $post->user->avatar_path
-                ],
-                'attachments' => $post->attachments->map(fn($attachment) => [
-                    'path' => $attachment->path,
-                    'mime' => $attachment->mime,
-                ]),
-                'like_count' => $post->reactions()->where('type', 'like')->count(),
-                'is_liked' => $post->reactions()
-                    ->where('user_id', $currentUserId)
-                    ->where('type', 'like')
-                    ->exists(),
-                'comment_count' => $post->comments_count
-            ];
+        return $posts->map(function ($post) {
+            return $this->transformPost($post);
         })->toArray();
     }
 

@@ -43,14 +43,17 @@ export interface User {
 
 export interface Post {
     id: number;
-    body: string;
+    body?: string;
     created_at: string;
     user: User;
     attachments?: PostAttachment[];
     like_count: number;
     is_liked: boolean;
     comment_count: number;
-    comments?: PostComment[];
+    repost_count: number;
+    is_repost: boolean;
+    is_reposted: boolean;
+    original_post?: Post;
 }
 
 export interface PostAttachment {

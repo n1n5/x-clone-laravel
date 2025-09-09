@@ -1,14 +1,15 @@
 import { Post, PostComment, User } from '@/types';
 import axios, { AxiosResponse } from 'axios';
 
-type ApiResponse<T = any> = {
+interface ApiResponse<T = any> {
     data?: T;
     error?: boolean;
     message?: string;
     errors?: Record<string, string[]>;
-};
+}
 
-const getCSRFToken = (): string => document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
+const getCSRFToken = (): string => 
+    document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
 
 const api = axios.create({
     baseURL: '/api',
@@ -27,7 +28,12 @@ const handleApiError = <T = any>(error: any, action: string): ApiResponse<T> => 
     };
 };
 
-const apiRequest = async <T>(method: 'get' | 'post' | 'put' | 'delete', url: string, data?: any, config?: any): Promise<T> => {
+const apiRequest = async <T>(
+    method: 'get' | 'post' | 'put' | 'delete',
+    url: string,
+    data?: any,
+    config?: any
+): Promise<T> => {
     const response: AxiosResponse = await api[method](url, data, config);
     return response.data;
 };
@@ -56,7 +62,7 @@ export const updatePost = async (postId: number, body: string): Promise<any> => 
     }
 };
 
-export const getPosts = async (): Promise<any> => {
+export const getPosts = async (): Promise<Post[]> => {
     try {
         return await apiRequest('get', '/posts');
     } catch (error) {
@@ -65,7 +71,7 @@ export const getPosts = async (): Promise<any> => {
     }
 };
 
-export const getUserPosts = async (userId: number): Promise<any> => {
+export const getUserPosts = async (userId: number): Promise<Post[]> => {
     try {
         return await apiRequest('get', `/users/${userId}/posts`);
     } catch (error) {
@@ -74,7 +80,7 @@ export const getUserPosts = async (userId: number): Promise<any> => {
     }
 };
 
-export const deletePost = async (postId: number): Promise<any> => {
+export const deletePost = async (postId: number): Promise<{ message: string }> => {
     try {
         return await apiRequest('delete', `/posts/${postId}`);
     } catch (error) {
@@ -92,8 +98,24 @@ export const getNonFollowedPosts = async (): Promise<Post[]> => {
     }
 };
 
+// Repost operation
+export const repostPost = async (postId: number): Promise<{
+    message: string;
+    repost_count: number;
+    is_reposted: boolean;
+}> => {
+    try {
+        return await apiRequest('post', `/posts/${postId}/repost`);
+    } catch (error) {
+        console.error('Error reposting:', error);
+        throw error;
+    }
+};
+
 // Reaction operations
-export const likePost = async (postId: number): Promise<any> => {
+export const likePost = async (postId: number): Promise<{
+    like_count: number;
+}> => {
     try {
         return await apiRequest('post', `/posts/${postId}/reactions`);
     } catch (error) {
@@ -102,7 +124,9 @@ export const likePost = async (postId: number): Promise<any> => {
     }
 };
 
-export const unlikePost = async (postId: number): Promise<any> => {
+export const unlikePost = async (postId: number): Promise<{
+    like_count: number;
+}> => {
     try {
         return await apiRequest('delete', `/posts/${postId}/reactions`);
     } catch (error) {
@@ -112,7 +136,9 @@ export const unlikePost = async (postId: number): Promise<any> => {
 };
 
 // User operations
-export const followUser = async (userId: number): Promise<any> => {
+export const followUser = async (userId: number): Promise<{
+    message: string;
+}> => {
     try {
         return await apiRequest('post', '/follow', { user_id: userId });
     } catch (error) {
@@ -121,7 +147,9 @@ export const followUser = async (userId: number): Promise<any> => {
     }
 };
 
-export const unfollowUser = async (userId: number): Promise<any> => {
+export const unfollowUser = async (userId: number): Promise<{
+    message: string;
+}> => {
     try {
         return await apiRequest('post', '/unfollow', { user_id: userId });
     } catch (error) {
