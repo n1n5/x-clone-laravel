@@ -66,6 +66,8 @@ export function PostDetail({ post }: { post: PostType }) {
                             postId={post.id}
                             initialLikeCount={post.like_count}
                             initialIsLiked={post.is_liked}
+                            initialRepostCount={post.repost_count}
+                            initialIsReposted={post.is_reposted}
                             commentCount={commentCount}
                         />
                     </div>

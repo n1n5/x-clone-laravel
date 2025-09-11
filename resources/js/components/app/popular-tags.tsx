@@ -1,5 +1,3 @@
-import { Link } from '@inertiajs/react';
-
 export function PopularTags() {
     return (
         <div className="flex flex-col gap-4 rounded-2xl border-[1px] border-borderCustom p-4">
@@ -45,9 +43,6 @@ export function PopularTags() {
                 <h2 className="font-bold text-textCustomDark">OpenAI</h2>
                 <span className="text-sm text-textCustom">20K Posts</span>
             </div>
-            <Link href={route('home')} className="text-iconBlue">
-                Show More
-            </Link>
         </div>
     );
 }

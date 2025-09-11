@@ -1,4 +1,3 @@
-import { Link } from '@inertiajs/react';
 import { PopularTags } from './popular-tags';
 import { Recommendations } from './recommendations';
 import { Search } from './search';
@@ -10,11 +9,6 @@ export function RightBar() {
             <PopularTags />
             <Recommendations />
             <div className="flex flex-wrap gap-x-4 text-sm text-textCustom">
-                <Link href={route('home')}>Terms of Service</Link>
-                <Link href={route('home')}>Privacy Policy</Link>
-                <Link href={route('home')}>Cookie Policy</Link>
-                <Link href={route('home')}>Accessibility</Link>
-                <Link href={route('home')}>Ads Info</Link>
                 <span>© 2025</span>
             </div>
         </div>

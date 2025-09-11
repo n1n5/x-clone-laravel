@@ -90,9 +90,6 @@ export function PostInteraction({
                 <button className="flex cursor-pointer hover:text-iconBlue">
                     <span className="inline-block h-[20px] w-[20px] bg-current [mask-image:url(/icons/bookmarks.svg)] [mask-size:contain] [-webkit-mask-image:url(/icons/bookmarks.svg)] [-webkit-mask-size:contain]" />
                 </button>
-                <button className="flex cursor-pointer hover:text-iconBlue">
-                    <span className="inline-block h-[20px] w-[20px] bg-current [mask-image:url(/icons/share.svg)] [mask-size:contain] [-webkit-mask-image:url(/icons/share.svg)] [-webkit-mask-size:contain]" />
-                </button>
             </div>
         </div>
     );

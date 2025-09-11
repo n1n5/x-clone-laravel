@@ -31,11 +31,11 @@ export function CommentList({ postId, refreshComments }: CommentListProps) {
     }, [postId, refreshComments]);
 
     if (loading) {
-        return <div className="mt-4 text-textCustom">Loading comments...</div>;
+        return <div className="p-4 text-center">Loading comments...</div>;
     }
 
     if (comments.length === 0) {
-        return <div className="mt-4 text-textCustom">No comments yet.</div>;
+        return <div className="p-4 text-center">No comments yet.</div>;
     }
 
     const getImageSrc = (path: string) => (path.startsWith('http') ? path : `/${path}`);

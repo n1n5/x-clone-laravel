@@ -1,5 +1,6 @@
 import { Post as PostType, SharedData } from '@/types';
 import { Link, usePage } from '@inertiajs/react';
+import { format } from 'date-fns';
 import { PostInfo } from './post-info';
 import { PostInteraction } from './post-interaction';
 import { Avatar, AvatarImage } from './ui/avatar';
@@ -66,7 +67,7 @@ function PostHeader({ post, isOwnProfile }: { post: PostType; isOwnProfile: bool
                 <div className="flex flex-wrap items-center gap-2">
                     <h1 className="text-md font-bold text-textDarkMode">{post.user.name}</h1>
                     <span className="text-textCustom">@{post.user.username}</span>
-                    <span className="text-textCustom">{post.created_at}</span>
+                    <span className="text-textCustom">{format(new Date(post.created_at), 'h:mm a MMM d, yyyy')}</span>
                 </div>
             </Link>
             <PostInfo is_own_profile={isOwnProfile} postId={post.id} postBody={post.body || ''} />

@@ -1,6 +1,7 @@
+'use client';
+
 import { followUser, getNonFollowedUsers } from '@/lib/api';
 import { User } from '@/types';
-import { Link } from '@inertiajs/react';
 import { useEffect, useState } from 'react';
 import { Avatar, AvatarImage } from './ui/avatar';
 
@@ -35,9 +36,6 @@ export function Recommendations() {
             {filteredUsers.map((user) => (
                 <UserCard key={user.id} user={user} onFollow={handleUserFollowed} />
             ))}
-            <Link href={route('home')} className="text-iconBlue">
-                Show More
-            </Link>
         </div>
     );
 }

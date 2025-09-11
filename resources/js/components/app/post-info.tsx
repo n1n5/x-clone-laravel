@@ -4,34 +4,6 @@ import { Description, Dialog, DialogTitle } from '@headlessui/react';
 import { useEffect, useRef, useState } from 'react';
 import { deletePost, updatePost } from '../../lib/api';
 
-const menuList = [
-    {
-        id: 1,
-        name: 'Unfollow user',
-        icon: 'unfollow.svg',
-    },
-    {
-        id: 2,
-        name: 'Hide posts from user',
-        icon: 'hide.svg',
-    },
-    {
-        id: 3,
-        name: 'Block user',
-        icon: 'block.svg',
-    },
-    {
-        id: 4,
-        name: 'Download post',
-        icon: 'download.svg',
-    },
-    {
-        id: 5,
-        name: 'Report post',
-        icon: 'report.svg',
-    },
-];
-
 const userMenuList = [
     {
         id: 1,
@@ -48,7 +20,7 @@ const userMenuList = [
 type PostInfoProps = {
     is_own_profile: boolean;
     postId: number;
-    postBody: string;
+    postBody?: string;
 };
 
 export function PostInfo({ is_own_profile, postId, postBody }: PostInfoProps) {
@@ -56,14 +28,14 @@ export function PostInfo({ is_own_profile, postId, postBody }: PostInfoProps) {
     const [isDeleteOpen, setIsDeleteOpen] = useState(false);
     const [isDeleting, setIsDeleting] = useState(false);
     const [isEditOpen, setIsEditOpen] = useState(false);
-    const [editBody, setEditBody] = useState(postBody || '');
+    const [editBody, setEditBody] = useState(postBody ?? '');
     const [isSaving, setIsSaving] = useState(false);
     const [editError, setEditError] = useState<string | null>(null);
     const menuRef = useRef(null);
 
     useEffect(() => {
         if (isEditOpen) {
-            setEditBody(postBody);
+            setEditBody(postBody ?? '');
             setEditError(null);
         }
     }, [isEditOpen, postBody]);
@@ -120,42 +92,31 @@ export function PostInfo({ is_own_profile, postId, postBody }: PostInfoProps) {
 
     return (
         <>
-            <div className="relative inline-block text-left" ref={menuRef}>
-                <button onClick={() => setIsOpen((prev) => !prev)} className="cursor-pointer text-textDarkMode">
-                    ...
-                </button>
-                {isOpen && (
-                    <div className="absolute right-0 z-10 mt-2 w-72 origin-top-right rounded-xl border-[1px] border-borderCustom bg-postInfo">
-                        <div className="py-2">
-                            {is_own_profile
-                                ? userMenuList.map((item) => (
-                                      <button
-                                          key={item.id}
-                                          onClick={item.name === 'Edit post' ? handleEdit : () => setIsDeleteOpen(true)}
-                                          className="flex w-full cursor-pointer items-center rounded-md p-1 px-4 py-3 text-textDarkMode hover:bg-hoverCustom"
-                                      >
-                                          <div className="mr-3">
-                                              <img src={`/icons/${item.icon}`} alt={item.name} width={24} height={24} />
-                                          </div>
-                                          {item.name}
-                                      </button>
-                                  ))
-                                : menuList.map((item) => (
-                                      <button
-                                          key={item.id}
-                                          onClick={() => setIsOpen(false)}
-                                          className="flex w-full cursor-pointer items-center rounded-md p-1 px-4 py-3 text-textDarkMode hover:bg-hoverCustom"
-                                      >
-                                          <div className="mr-3">
-                                              <img src={`/icons/${item.icon}`} alt={item.name} width={24} height={24} />
-                                          </div>
-                                          {item.name}
-                                      </button>
-                                  ))}
+            {is_own_profile && (
+                <div className="relative inline-block text-left" ref={menuRef}>
+                    <button onClick={() => setIsOpen((prev) => !prev)} className="cursor-pointer text-textDarkMode">
+                        ...
+                    </button>
+                    {isOpen && (
+                        <div className="absolute right-0 z-10 mt-2 w-72 origin-top-right rounded-xl border-[1px] border-borderCustom bg-postInfo">
+                            <div className="py-2">
+                                {userMenuList.map((item) => (
+                                    <button
+                                        key={item.id}
+                                        onClick={item.name === 'Edit post' ? handleEdit : () => setIsDeleteOpen(true)}
+                                        className="flex w-full cursor-pointer items-center rounded-md p-1 px-4 py-3 text-textDarkMode hover:bg-hoverCustom"
+                                    >
+                                        <div className="mr-3">
+                                            <img src={`/icons/${item.icon}`} alt={item.name} width={24} height={24} />
+                                        </div>
+                                        {item.name}
+                                    </button>
+                                ))}
+                            </div>
                         </div>
-                    </div>
-                )}
-            </div>
+                    )}
+                </div>
+            )}
 
             <Dialog open={isEditOpen} onClose={() => setIsEditOpen(false)} className="fixed inset-0 z-50 flex items-center justify-center">
                 <div className="fixed inset-0 bg-black/50" />

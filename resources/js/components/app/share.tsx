@@ -1,7 +1,7 @@
 'use client';
 
 import { createPost } from '@/lib/api';
-import { router, useForm } from '@inertiajs/react';
+import { router, useForm, usePage } from '@inertiajs/react';
 import { useState } from 'react';
 import { Avatar, AvatarImage } from './ui/avatar';
 
@@ -16,11 +16,6 @@ const menuList = [
         name: 'Emoji',
         icon: 'emoji.svg',
     },
-    {
-        id: 3,
-        name: 'Calendar post',
-        icon: 'calendar.svg',
-    },
 ];
 
 export function Share() {
@@ -33,6 +28,15 @@ export function Share() {
     });
     const [processing, setProcessing] = useState(false);
     const [errors, setErrors] = useState<Record<string, string | string[]>>({});
+
+    // Define minimal type for auth user
+    type AuthUser = {
+        avatar_path?: string | null;
+    };
+
+    const { auth } = usePage<{ auth: { user: AuthUser } }>().props;
+    const user = auth.user;
+    const avatarUrl = user?.avatar_path ? (user.avatar_path.startsWith('http') ? user.avatar_path : `/${user.avatar_path}`) : '/icons/profile.svg';
 
     const handleMediaChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files && e.target.files[0]) {
@@ -74,7 +78,7 @@ export function Share() {
     return (
         <form className="flex gap-4 p-4" onSubmit={handleSubmit}>
             <Avatar>
-                <AvatarImage src="/general/avatar.jpg" alt="Avatar" width={100} height={100} />
+                <AvatarImage src={avatarUrl} alt="Avatar" width={100} height={100} />
             </Avatar>
             <div className="flex flex-1 flex-col gap-4">
                 <input

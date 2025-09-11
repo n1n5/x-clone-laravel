@@ -6,6 +6,7 @@ import { ProfilePageInfo } from '@/components/app/profile-page-info';
 import { RightBar } from '@/components/app/right-bar';
 import { followUser, unfollowUser } from '@/lib/api';
 import { Head, Link, router } from '@inertiajs/react';
+import { format } from 'date-fns';
 import { useEffect, useRef, useState } from 'react';
 
 type User = {
@@ -137,7 +138,7 @@ export default function ProfilePage({
                         )}
                     </div>
 
-                    <div className="group absolute left-4 aspect-square w-1/5 -translate-y-1/2 overflow-hidden rounded-full border-4 border-postInfo bg-postInfo">
+                    <div className="group absolute left-4 aspect-square w-1/5 -translate-y-1/2 overflow-hidden rounded-full border-4 border-postInfo bg-postInfo max-2xl:h-20 max-2xl:w-20">
                         <img src={avatarImage} alt="Avatar" height={100} width={100} className="size-full object-cover" />
                         <input type="file" ref={avatarInputRef} className="hidden" accept="image/*" onChange={(e) => handleFileChange(e, 'avatar')} />
                         {is_own_profile && (
@@ -181,7 +182,7 @@ export default function ProfilePage({
                     <div className="flex gap-4 text-[15px] text-iconBlue">
                         <div className="flex items-center gap-2">
                             <img src="/icons/calendar.svg" alt="Calendar" height={20} width={20} />
-                            <span>Joined {user.created_at}</span>
+                            <span>Joined {format(new Date(user.created_at), 'MMM d, yyyy')}</span>
                         </div>
                     </div>
 
