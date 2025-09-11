@@ -26,33 +26,15 @@ const menuList: MenuItem[] = [
     },
     {
         id: 3,
-        name: 'Notifications',
-        link: 'home',
-        icon: 'notifications.svg',
-    },
-    {
-        id: 4,
         name: 'Bookmarks',
-        link: 'home',
+        link: 'bookmarks',
         icon: 'bookmarks.svg',
     },
     {
-        id: 5,
-        name: 'Communities',
-        link: 'home',
-        icon: 'communities.svg',
-    },
-    {
-        id: 6,
+        id: 4,
         name: 'Profile',
         link: 'profile',
         icon: 'profile.svg',
-    },
-    {
-        id: 7,
-        name: 'More',
-        link: 'home',
-        icon: 'more.svg',
     },
 ];
 

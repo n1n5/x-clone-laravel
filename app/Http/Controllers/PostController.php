@@ -145,7 +145,7 @@ class PostController extends Controller
         if ($existingRepost) {
             $existingRepost->delete();
             $originalPost->decrement('repost_count');
-            
+
             return response()->json([
                 'message' => 'Post unreposted',
                 'repost_count' => $originalPost->repost_count,
@@ -156,14 +156,14 @@ class PostController extends Controller
         $repost = Post::create([
             'user_id' => $currentUserId,
             'repost_of_post_id' => $originalPost->id,
-            'repost_user_id' => $currentUserId,
+            'is_repost' => true,
         ]);
 
         $originalPost->increment('repost_count');
-        $repost->load(['user', 'repostOriginal.user', 'repostOriginal.attachments']);
+        $repost->load(['repostOriginal']);
 
         return response()->json([
-            ...$this->transformPost($originalPost),
+            ...$this->transformPost($repost),
             'repost_count' => $originalPost->repost_count,
             'is_reposted' => true
         ]);
@@ -181,12 +181,12 @@ class PostController extends Controller
             'repostOriginal.user',
             'repostOriginal.attachments'
         ])
-        ->withCount('comments')
-        ->addSelect([
-            'is_reposted' => Post::selectRaw('COUNT(*) > 0')
-                ->whereColumn('repost_of_post_id', 'posts.id')
-                ->where('user_id', $currentUserId)
-        ]);
+            ->withCount('comments')
+            ->addSelect([
+                'is_reposted' => Post::selectRaw('COUNT(*) > 0')
+                    ->whereColumn('repost_of_post_id', 'posts.id')
+                    ->where('user_id', $currentUserId)
+            ]);
     }
 
     private function transformPost(Post $post): array
@@ -204,22 +204,21 @@ class PostController extends Controller
                 'username' => $post->user->username,
                 'avatar_path' => $post->user->avatar_path
             ],
-            'repost_count' => $post->repost_count,
             'is_repost' => $isRepost,
             'is_reposted' => $isReposted,
+            'repost_count' => $isRepost && $post->repostOriginal
+                ? $post->repostOriginal->repost_count
+                : $post->repost_count,
             'like_count' => 0,
             'is_liked' => false,
             'comment_count' => 0
         ];
 
         if ($isRepost && $post->repostOriginal) {
-            $original = $post->repostOriginal;
-            $baseData['original_post'] = $this->buildOriginalPostData($original, $currentUserId);
+            $baseData['original_post'] = $this->buildOriginalPostData($post->repostOriginal, $currentUserId);
         } else {
-            $baseData = array_merge($baseData, $this->buildPostData($post, $currentUserId));
-            if ($isRepost) {
-                $baseData['is_repost'] = false;
-            }
+            $postData = $this->buildPostData($post, $currentUserId);
+            $baseData = array_merge($baseData, $postData);
         }
 
         return $baseData;

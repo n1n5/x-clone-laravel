@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Post extends Model
 {
@@ -18,7 +19,6 @@ class Post extends Model
         'group_id',
         'deleted_by',
         'repost_of_post_id',
-        'repost_user_id',
         'repost_count'
     ];
 
@@ -44,9 +44,10 @@ class Post extends Model
         return $this->hasMany(Post::class, 'repost_of_post_id');
     }
 
-    public function repostUser(): BelongsTo
+    public function repostedByUsers(): BelongsToMany
     {
-        return $this->belongsTo(User::class, 'repost_user_id');
+        return $this->belongsToMany(User::class, 'reposts', 'post_id', 'user_id')
+            ->withTimestamps();
     }
 
     public function attachments(): HasMany

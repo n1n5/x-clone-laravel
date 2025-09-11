@@ -54,6 +54,7 @@ export interface Post {
     is_repost: boolean;
     is_reposted: boolean;
     original_post?: Post;
+    repost_of_post_id?: number;
 }
 
 export interface PostAttachment {
