@@ -24,7 +24,7 @@ export function PostInteraction({
     const [likeCount, setLikeCount] = useState(initialLikeCount);
     const [repostCount, setRepostCount] = useState(initialRepostCount);
     const [isReposting, setIsReposting] = useState(false);
-    const [isReposted, setIsReposted] = useState(initialIsReposted);
+    const [isReposted, setIsReposted] = useState(initialIsReposted ?? false);
 
     const handleLike = async () => {
         try {
@@ -48,16 +48,12 @@ export function PostInteraction({
         try {
             setIsReposting(true);
 
-            const newRepostedState = !isReposted;
-            setIsReposted(newRepostedState);
-
             const response = await repostPost(postId);
 
             setRepostCount(response.repost_count);
             setIsReposted(response.is_reposted);
         } catch (error) {
             console.error('Failed to repost:', error);
-            setIsReposted((prev) => !prev);
         } finally {
             setIsReposting(false);
         }

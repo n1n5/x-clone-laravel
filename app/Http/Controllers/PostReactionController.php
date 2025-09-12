@@ -6,11 +6,9 @@ use App\Models\Post;
 use App\Models\PostReaction;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
-use App\Http\Controllers\Concerns\TransformsPosts;
 
 class PostReactionController extends Controller
 {
-    use TransformsPosts;
     public function store(Post $post): JsonResponse
     {
         $existingReaction = $this->findUserReaction($post);
@@ -74,15 +72,13 @@ class PostReactionController extends Controller
         ]);
 
         $originalPost->increment('repost_count');
-        $repost->load(['repostOriginal']);
 
         return response()->json([
-            ...$this->transformPost($repost),
+            'message' => 'Post reposted',
             'repost_count' => $originalPost->repost_count,
             'is_reposted' => true
         ]);
     }
-
 
     private function findUserReaction(Post $post): ?PostReaction
     {

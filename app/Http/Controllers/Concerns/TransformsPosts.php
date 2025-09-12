@@ -11,7 +11,12 @@ trait TransformsPosts
     {
         $currentUserId = Auth::id();
         $isRepost = !is_null($post->repost_of_post_id);
-        $isReposted = $post->is_repost;
+
+        $originalPostId = $isRepost ? $post->repost_of_post_id : $post->id;
+
+        $isReposted = Post::where('user_id', $currentUserId)
+            ->where('repost_of_post_id', $originalPostId)
+            ->exists();
 
         $baseData = [
             'id' => $post->id,
@@ -44,6 +49,10 @@ trait TransformsPosts
 
     private function buildOriginalPostData(Post $original, int $currentUserId): array
     {
+        $isReposted = Post::where('user_id', $currentUserId)
+            ->where('repost_of_post_id', $original->id)
+            ->exists();
+
         return [
             'id' => $original->id,
             'body' => $original->body,
@@ -64,7 +73,8 @@ trait TransformsPosts
                 ->where('type', 'like')
                 ->exists(),
             'comment_count' => $original->comments()->count(),
-            'repost_count' => $original->repost_count
+            'repost_count' => $original->repost_count,
+            'is_reposted' => $isReposted
         ];
     }
 
