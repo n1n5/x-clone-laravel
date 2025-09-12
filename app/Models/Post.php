@@ -16,7 +16,6 @@ class Post extends Model
     protected $fillable = [
         'body',
         'user_id',
-        'group_id',
         'deleted_by',
         'repost_of_post_id',
         'repost_count'
@@ -27,11 +26,6 @@ class Post extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
-    }
-
-    public function group(): BelongsTo
-    {
-        return $this->belongsTo(Group::class);
     }
 
     public function repostOriginal(): BelongsTo

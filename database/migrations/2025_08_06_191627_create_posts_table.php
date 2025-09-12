@@ -15,7 +15,6 @@ return new class extends Migration
             $table->id();
             $table->longText('body')->nullable();
             $table->foreignId('user_id')->constrained('users');
-            $table->foreignId('group_id')->nullable()->constrained('groups');
             $table->foreignId('repost_of_post_id')->nullable()->constrained('posts')->onDelete('cascade');
             $table->unsignedInteger('repost_count')->default(0);
             $table->timestamp('deleted_by')->nullable()->constrained('user');

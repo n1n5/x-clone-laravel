@@ -10,9 +10,11 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 use Inertia\Response;
+use App\Http\Controllers\Concerns\TransformsPosts;
 
 class PostController extends Controller
 {
+    use TransformsPosts;
     public function create(): Response
     {
         return Inertia::render('post-create');
@@ -133,42 +135,6 @@ class PostController extends Controller
         return response()->json(['message' => 'Post deleted']);
     }
 
-    public function repost(Post $post): JsonResponse
-    {
-        $originalPost = $post->repost_of_post_id ? $post->repostOriginal : $post;
-        $currentUserId = Auth::id();
-
-        $existingRepost = Post::where('user_id', $currentUserId)
-            ->where('repost_of_post_id', $originalPost->id)
-            ->first();
-
-        if ($existingRepost) {
-            $existingRepost->delete();
-            $originalPost->decrement('repost_count');
-
-            return response()->json([
-                'message' => 'Post unreposted',
-                'repost_count' => $originalPost->repost_count,
-                'is_reposted' => false
-            ]);
-        }
-
-        $repost = Post::create([
-            'user_id' => $currentUserId,
-            'repost_of_post_id' => $originalPost->id,
-            'is_repost' => true,
-        ]);
-
-        $originalPost->increment('repost_count');
-        $repost->load(['repostOriginal']);
-
-        return response()->json([
-            ...$this->transformPost($repost),
-            'repost_count' => $originalPost->repost_count,
-            'is_reposted' => true
-        ]);
-    }
-
     private function getPostsQuery()
     {
         $currentUserId = Auth::id();
@@ -187,84 +153,6 @@ class PostController extends Controller
                     ->whereColumn('repost_of_post_id', 'posts.id')
                     ->where('user_id', $currentUserId)
             ]);
-    }
-
-    private function transformPost(Post $post): array
-    {
-        $currentUserId = Auth::id();
-        $isRepost = !is_null($post->repost_of_post_id);
-        $isReposted = $post->is_reposted;
-
-        $baseData = [
-            'id' => $post->id,
-            'created_at' => $post->created_at->toDateTimeString(),
-            'user' => [
-                'id' => $post->user->id,
-                'name' => $post->user->name,
-                'username' => $post->user->username,
-                'avatar_path' => $post->user->avatar_path
-            ],
-            'is_repost' => $isRepost,
-            'is_reposted' => $isReposted,
-            'repost_count' => $isRepost && $post->repostOriginal
-                ? $post->repostOriginal->repost_count
-                : $post->repost_count,
-            'like_count' => 0,
-            'is_liked' => false,
-            'comment_count' => 0
-        ];
-
-        if ($isRepost && $post->repostOriginal) {
-            $baseData['original_post'] = $this->buildOriginalPostData($post->repostOriginal, $currentUserId);
-        } else {
-            $postData = $this->buildPostData($post, $currentUserId);
-            $baseData = array_merge($baseData, $postData);
-        }
-
-        return $baseData;
-    }
-
-    private function buildOriginalPostData(Post $original, int $currentUserId): array
-    {
-        return [
-            'id' => $original->id,
-            'body' => $original->body,
-            'created_at' => $original->created_at->toDateTimeString(),
-            'user' => [
-                'id' => $original->user->id,
-                'name' => $original->user->name,
-                'username' => $original->user->username,
-                'avatar_path' => $original->user->avatar_path
-            ],
-            'attachments' => $original->attachments->map(fn($a) => [
-                'path' => $a->path,
-                'mime' => $a->mime
-            ]),
-            'like_count' => $original->reactions()->where('type', 'like')->count(),
-            'is_liked' => $original->reactions()
-                ->where('user_id', $currentUserId)
-                ->where('type', 'like')
-                ->exists(),
-            'comment_count' => $original->comments()->count(),
-            'repost_count' => $original->repost_count
-        ];
-    }
-
-    private function buildPostData(Post $post, int $currentUserId): array
-    {
-        return [
-            'body' => $post->body,
-            'attachments' => $post->attachments->map(fn($a) => [
-                'path' => $a->path,
-                'mime' => $a->mime
-            ]),
-            'like_count' => $post->reactions()->where('type', 'like')->count(),
-            'is_liked' => $post->reactions()
-                ->where('user_id', $currentUserId)
-                ->where('type', 'like')
-                ->exists(),
-            'comment_count' => $post->comments()->count()
-        ];
     }
 
     private function transformPosts($posts): array

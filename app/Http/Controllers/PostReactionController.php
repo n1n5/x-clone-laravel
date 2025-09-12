@@ -6,9 +6,11 @@ use App\Models\Post;
 use App\Models\PostReaction;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
+use App\Http\Controllers\Concerns\TransformsPosts;
 
 class PostReactionController extends Controller
 {
+    use TransformsPosts;
     public function store(Post $post): JsonResponse
     {
         $existingReaction = $this->findUserReaction($post);
@@ -44,6 +46,43 @@ class PostReactionController extends Controller
             'like_count' => $post->reactions()->count()
         ]);
     }
+
+    public function repost(Post $post): JsonResponse
+    {
+        $originalPost = $post->repost_of_post_id ? $post->repostOriginal : $post;
+        $currentUserId = Auth::id();
+
+        $existingRepost = Post::where('user_id', $currentUserId)
+            ->where('repost_of_post_id', $originalPost->id)
+            ->first();
+
+        if ($existingRepost) {
+            $existingRepost->delete();
+            $originalPost->decrement('repost_count');
+
+            return response()->json([
+                'message' => 'Post unreposted',
+                'repost_count' => $originalPost->repost_count,
+                'is_reposted' => false
+            ]);
+        }
+
+        $repost = Post::create([
+            'user_id' => $currentUserId,
+            'repost_of_post_id' => $originalPost->id,
+            'is_repost' => true,
+        ]);
+
+        $originalPost->increment('repost_count');
+        $repost->load(['repostOriginal']);
+
+        return response()->json([
+            ...$this->transformPost($repost),
+            'repost_count' => $originalPost->repost_count,
+            'is_reposted' => true
+        ]);
+    }
+
 
     private function findUserReaction(Post $post): ?PostReaction
     {
