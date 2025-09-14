@@ -34,7 +34,10 @@ trait TransformsPosts
                 : $post->repost_count,
             'like_count' => 0,
             'is_liked' => false,
-            'comment_count' => 0
+            'comment_count' => 0,
+            'bookmark_count' => $post->bookmarks_count ?? $post->bookmarks()->count(),
+            'is_bookmarked' => $post->is_bookmarked ?? false,
+            'bookmark_id' => $post->bookmark_id ?? null,
         ];
 
         if ($isRepost && $post->repostOriginal) {
@@ -52,6 +55,15 @@ trait TransformsPosts
         $isReposted = Post::where('user_id', $currentUserId)
             ->where('repost_of_post_id', $original->id)
             ->exists();
+
+        $bookmarkCount = $original->bookmarks_count ?? $original->bookmarks()->count();
+        $isBookmarked = $original->is_bookmarked ?? $original->bookmarks()->where('user_id', $currentUserId)->exists();
+        $bookmarkId = $original->bookmark_id;
+
+        if ($isBookmarked && !$bookmarkId) {
+            $bookmark = $original->bookmarks()->where('user_id', $currentUserId)->first();
+            $bookmarkId = $bookmark ? $bookmark->id : null;
+        }
 
         return [
             'id' => $original->id,
@@ -74,7 +86,10 @@ trait TransformsPosts
                 ->exists(),
             'comment_count' => $original->comments()->count(),
             'repost_count' => $original->repost_count,
-            'is_reposted' => $isReposted
+            'is_reposted' => $isReposted,
+            'bookmark_count' => $bookmarkCount,
+            'is_bookmarked' => $isBookmarked,
+            'bookmark_id' => $bookmarkId,
         ];
     }
 

@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
+use App\Http\Controllers\BookmarkController;
 use App\Http\Controllers\CommentController;
 use App\Http\Controllers\FollowController;
 use App\Http\Controllers\NonFollowedUsersController;
@@ -46,6 +47,13 @@ Route::prefix('api')->middleware('auth')->group(function () {
     Route::prefix('comments')->group(function () {
         Route::get('{post}', [CommentController::class, 'index'])->name('comments.index');
         Route::post('/', [CommentController::class, 'store'])->name('comments.store');
+    });
+
+    Route::prefix('bookmarks')->group(function () {
+        Route::get('/', [BookmarkController::class, 'index'])->name('bookmarks.index');
+        Route::post('{post}', [BookmarkController::class, 'store'])->name('bookmarks.store');
+        Route::delete('{bookmark}', [BookmarkController::class, 'destroy'])->name('bookmarks.destroy');
+        Route::delete('by-post/{post}', [BookmarkController::class, 'destroyByPost'])->name('bookmarks.destroy-by-post');
     });
 
     Route::get('users/{user}/posts', [PostController::class, 'userPosts'])->name('api.users.posts');

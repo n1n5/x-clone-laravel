@@ -55,6 +55,9 @@ export interface Post {
     is_reposted: boolean;
     original_post?: Post;
     repost_of_post_id?: number;
+    bookmark_count: number;
+    is_bookmarked: boolean;
+    bookmark_id?: number;
 }
 
 export interface PostAttachment {
@@ -67,4 +70,13 @@ export interface PostComment {
     comment: string;
     created_at: string;
     user: User;
+}
+
+export interface Bookmark {
+    id: number;
+    user_id: number;
+    post_id: number;
+    created_at: string;
+    updated_at: string;
+    post: Post;
 }

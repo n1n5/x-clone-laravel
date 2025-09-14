@@ -36,6 +36,9 @@ export function Post({ post }: PostProps) {
                         initialRepostCount={displayPost.repost_count}
                         initialIsReposted={displayPost.is_reposted}
                         commentCount={displayPost.comment_count}
+                        initialBookmarkCount={displayPost.bookmark_count}
+                        initialIsBookmarked={displayPost.is_bookmarked}
+                        initialBookmarkId={displayPost.bookmark_id}
                     />
                 </div>
             </div>

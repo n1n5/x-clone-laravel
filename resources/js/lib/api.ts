@@ -1,4 +1,4 @@
-import { Post, PostComment, User } from '@/types';
+import { Bookmark, Post, PostComment, User } from '@/types';
 import axios, { AxiosResponse } from 'axios';
 
 interface ApiResponse<T = any> {
@@ -8,8 +8,7 @@ interface ApiResponse<T = any> {
     errors?: Record<string, string[]>;
 }
 
-const getCSRFToken = (): string => 
-    document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
+const getCSRFToken = (): string => document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
 
 const api = axios.create({
     baseURL: '/api',
@@ -28,12 +27,7 @@ const handleApiError = <T = any>(error: any, action: string): ApiResponse<T> => 
     };
 };
 
-const apiRequest = async <T>(
-    method: 'get' | 'post' | 'put' | 'delete',
-    url: string,
-    data?: any,
-    config?: any
-): Promise<T> => {
+const apiRequest = async <T>(method: 'get' | 'post' | 'put' | 'delete', url: string, data?: any, config?: any): Promise<T> => {
     const response: AxiosResponse = await api[method](url, data, config);
     return response.data;
 };
@@ -99,7 +93,9 @@ export const getNonFollowedPosts = async (): Promise<Post[]> => {
 };
 
 // Repost operation
-export const repostPost = async (postId: number): Promise<{
+export const repostPost = async (
+    postId: number,
+): Promise<{
     message: string;
     repost_count: number;
     is_reposted: boolean;
@@ -113,7 +109,9 @@ export const repostPost = async (postId: number): Promise<{
 };
 
 // Reaction operations
-export const likePost = async (postId: number): Promise<{
+export const likePost = async (
+    postId: number,
+): Promise<{
     like_count: number;
 }> => {
     try {
@@ -124,7 +122,9 @@ export const likePost = async (postId: number): Promise<{
     }
 };
 
-export const unlikePost = async (postId: number): Promise<{
+export const unlikePost = async (
+    postId: number,
+): Promise<{
     like_count: number;
 }> => {
     try {
@@ -136,7 +136,9 @@ export const unlikePost = async (postId: number): Promise<{
 };
 
 // User operations
-export const followUser = async (userId: number): Promise<{
+export const followUser = async (
+    userId: number,
+): Promise<{
     message: string;
 }> => {
     try {
@@ -147,7 +149,9 @@ export const followUser = async (userId: number): Promise<{
     }
 };
 
-export const unfollowUser = async (userId: number): Promise<{
+export const unfollowUser = async (
+    userId: number,
+): Promise<{
     message: string;
 }> => {
     try {
@@ -185,6 +189,54 @@ export const createComment = async (postId: number, comment: string): Promise<Po
         });
     } catch (error) {
         console.error('Error creating comment:', error);
+        throw error;
+    }
+};
+
+// Bookmark operations
+interface BookmarkResponse {
+    bookmark_count: number;
+    is_bookmarked: boolean;
+    bookmark_id?: number;
+    message: string;
+}
+
+export const bookmarkPost = async (postId: number): Promise<BookmarkResponse> => {
+    try {
+        const response = await apiRequest<BookmarkResponse>('post', `/bookmarks/${postId}`);
+        return response;
+    } catch (error) {
+        console.error('Error bookmarking post:', error);
+        throw error;
+    }
+};
+
+export const unbookmarkPost = async (bookmarkId: number): Promise<BookmarkResponse> => {
+    try {
+        const response = await apiRequest<BookmarkResponse>('delete', `/bookmarks/${bookmarkId}`);
+        return {
+            bookmark_count: response.bookmark_count,
+            is_bookmarked: false,
+            message: response.message,
+        };
+    } catch (error) {
+        console.error('Error unbookmarking post:', error);
+        throw error;
+    }
+};
+
+interface BookmarksResponse {
+    data: Bookmark[];
+    current_page: number;
+    last_page: number;
+}
+
+export const getBookmarks = async (page = 1): Promise<BookmarksResponse> => {
+    try {
+        const response = await apiRequest<BookmarksResponse>('get', '/bookmarks', { page });
+        return response;
+    } catch (error) {
+        console.error('Error fetching bookmarks:', error);
         throw error;
     }
 };

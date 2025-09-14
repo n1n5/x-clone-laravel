@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Post;
+use App\Models\Bookmark;
 use App\Models\PostAttachment;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -60,6 +61,40 @@ class PostController extends Controller
         return redirect()->route('home');
     }
 
+    public function showSingle(Post $post): Response
+    {
+        $currentUserId = Auth::id();
+
+        $post->load([
+            'user',
+            'attachments',
+            'reactions',
+            'comments',
+            'repostOriginal' => function ($query) use ($currentUserId) {
+                $query->with(['user', 'attachments'])
+                    ->withCount(['comments', 'bookmarks'])
+                    ->addSelect([
+                        'is_bookmarked' => Bookmark::selectRaw('COUNT(*) > 0')
+                            ->whereColumn('post_id', 'posts.id')
+                            ->where('user_id', $currentUserId),
+                        'bookmark_id' => Bookmark::select('id')
+                            ->whereColumn('post_id', 'posts.id')
+                            ->where('user_id', $currentUserId)
+                            ->limit(1)
+                    ]);
+            }
+        ])
+            ->loadCount(['comments', 'bookmarks']);
+
+        $post->is_bookmarked = $post->bookmarks()->where('user_id', $currentUserId)->exists();
+        $bookmark = $post->bookmarks()->where('user_id', $currentUserId)->first();
+        $post->bookmark_id = $bookmark ? $bookmark->id : null;
+
+        return Inertia::render('post-show', [
+            'post' => $this->transformPost($post)
+        ]);
+    }
+
     public function show(Request $request): JsonResponse
     {
         /** @var \App\Models\User $user */
@@ -71,16 +106,9 @@ class PostController extends Controller
             ->latest()
             ->get(['id', 'body', 'user_id', 'created_at']);
 
+        $this->loadBookmarkData($posts);
+
         return response()->json($this->transformPosts($posts));
-    }
-
-    public function showSingle(Post $post): Response
-    {
-        $post->load(['user', 'attachments', 'reactions', 'comments']);
-
-        return Inertia::render('post-show', [
-            'post' => $this->transformPost($post)
-        ]);
     }
 
     public function userPosts(int $user_id): JsonResponse
@@ -89,6 +117,8 @@ class PostController extends Controller
             ->where('user_id', $user_id)
             ->latest()
             ->get(['id', 'body', 'user_id', 'created_at']);
+
+        $this->loadBookmarkData($posts);
 
         return response()->json($this->transformPosts($posts));
     }
@@ -105,6 +135,8 @@ class PostController extends Controller
             ->whereNotIn('user_id', $excludedUserIds)
             ->latest()
             ->get(['id', 'body', 'user_id', 'created_at']);
+
+        $this->loadBookmarkData($posts);
 
         return response()->json($this->transformPosts($posts));
     }
@@ -144,15 +176,70 @@ class PostController extends Controller
                 $query->select('id', 'name', 'username', 'avatar_path');
             },
             'attachments',
-            'repostOriginal.user',
-            'repostOriginal.attachments'
+            'repostOriginal' => function ($query) use ($currentUserId) {
+                $query->with(['user', 'attachments'])
+                    ->withCount(['comments', 'bookmarks'])
+                    ->addSelect([
+                        'is_bookmarked' => Bookmark::selectRaw('COUNT(*) > 0')
+                            ->whereColumn('post_id', 'posts.id')
+                            ->where('user_id', $currentUserId),
+                        'bookmark_id' => Bookmark::select('id')
+                            ->whereColumn('post_id', 'posts.id')
+                            ->where('user_id', $currentUserId)
+                            ->limit(1)
+                    ]);
+            }
         ])
-            ->withCount('comments')
+            ->withCount(['comments', 'bookmarks'])
             ->addSelect([
                 'is_reposted' => Post::selectRaw('COUNT(*) > 0')
                     ->whereColumn('repost_of_post_id', 'posts.id')
+                    ->where('user_id', $currentUserId),
+                'is_bookmarked' => Bookmark::selectRaw('COUNT(*) > 0')
+                    ->whereColumn('post_id', 'posts.id')
+                    ->where('user_id', $currentUserId),
+                'bookmark_id' => Bookmark::select('id')
+                    ->whereColumn('post_id', 'posts.id')
                     ->where('user_id', $currentUserId)
+                    ->limit(1)
             ]);
+    }
+
+    private function loadBookmarkData($posts)
+    {
+        $currentUserId = Auth::id();
+
+        if ($posts instanceof \Illuminate\Database\Eloquent\Collection) {
+            foreach ($posts as $post) {
+                $this->loadBookmarkDataForSinglePost($post, $currentUserId);
+            }
+        } else {
+            $this->loadBookmarkDataForSinglePost($posts, $currentUserId);
+        }
+
+        return $posts;
+    }
+
+    private function loadBookmarkDataForSinglePost($post, $currentUserId)
+    {
+        if (!isset($post->is_bookmarked)) {
+            $post->is_bookmarked = $post->bookmarks()->where('user_id', $currentUserId)->exists();
+        }
+
+        if (!isset($post->bookmark_id) && $post->is_bookmarked) {
+            $bookmark = $post->bookmarks()->where('user_id', $currentUserId)->first();
+            $post->bookmark_id = $bookmark ? $bookmark->id : null;
+        }
+
+        if ($post->repostOriginal && !isset($post->repostOriginal->is_bookmarked)) {
+            $post->repostOriginal->is_bookmarked = $post->repostOriginal->bookmarks()
+                ->where('user_id', $currentUserId)->exists();
+
+            if ($post->repostOriginal->is_bookmarked) {
+                $bookmark = $post->repostOriginal->bookmarks()->where('user_id', $currentUserId)->first();
+                $post->repostOriginal->bookmark_id = $bookmark ? $bookmark->id : null;
+            }
+        }
     }
 
     private function transformPosts($posts): array

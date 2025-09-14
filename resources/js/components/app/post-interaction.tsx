@@ -1,6 +1,6 @@
 'use client';
 
-import { likePost, repostPost, unlikePost } from '@/lib/api';
+import { bookmarkPost, likePost, repostPost, unbookmarkPost, unlikePost } from '@/lib/api';
 import { useState } from 'react';
 
 interface PostInteractionProps {
@@ -10,6 +10,9 @@ interface PostInteractionProps {
     initialRepostCount: number;
     initialIsReposted: boolean;
     commentCount: number;
+    initialBookmarkCount: number;
+    initialIsBookmarked: boolean;
+    initialBookmarkId?: number | null;
 }
 
 export function PostInteraction({
@@ -19,10 +22,17 @@ export function PostInteraction({
     initialRepostCount,
     initialIsReposted,
     commentCount,
+    initialBookmarkCount,
+    initialIsBookmarked,
+    initialBookmarkId,
 }: PostInteractionProps) {
-    const [isLiked, setIsLiked] = useState(initialIsLiked);
-    const [likeCount, setLikeCount] = useState(initialLikeCount);
-    const [repostCount, setRepostCount] = useState(initialRepostCount);
+    const [isBookmarked, setIsBookmarked] = useState(initialIsBookmarked ?? false);
+    const [bookmarkCount, setBookmarkCount] = useState(initialBookmarkCount ?? 0);
+    const [isBookmarking, setIsBookmarking] = useState(false);
+    const [bookmarkId, setBookmarkId] = useState<number | null>(initialIsBookmarked && initialBookmarkId ? initialBookmarkId : null);
+    const [isLiked, setIsLiked] = useState(initialIsLiked ?? false);
+    const [likeCount, setLikeCount] = useState(initialLikeCount ?? 0);
+    const [repostCount, setRepostCount] = useState(initialRepostCount ?? 0);
     const [isReposting, setIsReposting] = useState(false);
     const [isReposted, setIsReposted] = useState(initialIsReposted ?? false);
 
@@ -59,6 +69,37 @@ export function PostInteraction({
         }
     };
 
+    const handleBookmark = async () => {
+        if (isBookmarking) return;
+
+        try {
+            setIsBookmarking(true);
+
+            if (isBookmarked && bookmarkId) {
+                const response = await unbookmarkPost(bookmarkId);
+                setIsBookmarked(false);
+                setBookmarkCount(response.bookmark_count);
+                setBookmarkId(null);
+            } else if (isBookmarked && !bookmarkId && initialBookmarkId) {
+                const response = await unbookmarkPost(initialBookmarkId);
+                setIsBookmarked(false);
+                setBookmarkCount(response.bookmark_count);
+                setBookmarkId(null);
+            } else {
+                const response = await bookmarkPost(postId);
+                setIsBookmarked(true);
+                setBookmarkCount(response.bookmark_count);
+                setBookmarkId(response.bookmark_id || null);
+            }
+        } catch (error) {
+            console.error('Failed to toggle bookmark:', error);
+            setIsBookmarked(!isBookmarked);
+            setBookmarkCount(bookmarkCount);
+        } finally {
+            setIsBookmarking(false);
+        }
+    };
+
     return (
         <div className="my-2 flex items-center justify-between gap-4 text-textCustom lg:gap-16">
             <div className="flex flex-1 items-center justify-between">
@@ -83,8 +124,13 @@ export function PostInteraction({
                 </button>
             </div>
             <div className="flex items-center gap-2">
-                <button className="flex cursor-pointer hover:text-iconBlue">
+                <button
+                    className={`flex cursor-pointer items-center gap-2 ${isBookmarked ? 'text-iconBlue' : 'hover:text-iconBlue'}`}
+                    onClick={handleBookmark}
+                    disabled={isBookmarking}
+                >
                     <span className="inline-block h-[20px] w-[20px] bg-current [mask-image:url(/icons/bookmarks.svg)] [mask-size:contain] [-webkit-mask-image:url(/icons/bookmarks.svg)] [-webkit-mask-size:contain]" />
+                    {bookmarkCount}
                 </button>
             </div>
         </div>

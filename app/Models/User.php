@@ -10,6 +10,7 @@ use Illuminate\Notifications\Notifiable;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use App\Models\Bookmark;
 use App\Models\Comment;
 
 class User extends Authenticatable implements MustVerifyEmail
@@ -80,5 +81,10 @@ class User extends Authenticatable implements MustVerifyEmail
     public function comments(): HasMany
     {
         return $this->hasMany(Comment::class);
+    }
+
+    public function bookmarks(): HasMany
+    {
+        return $this->hasMany(Bookmark::class);
     }
 }
