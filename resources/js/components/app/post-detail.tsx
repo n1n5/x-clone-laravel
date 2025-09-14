@@ -47,7 +47,7 @@ export function PostDetail({ post }: { post: PostType }) {
                                 <h1 className="text-md font-bold text-textDarkMode">{post.user.name}</h1>
                                 <span className="text-sm text-textCustom">@{post.user.username}</span>
                             </div>
-                            <PostInfo is_own_profile={is_own_profile} postId={post.id} postBody={post.body} />
+                            <PostInfo is_own_profile={is_own_profile} is_repost={post.is_repost} postId={post.id} postBody={post.body} />
                         </div>
 
                         <p className="text-lg text-textDarkMode">{post.body}</p>
@@ -69,6 +69,9 @@ export function PostDetail({ post }: { post: PostType }) {
                             initialRepostCount={post.repost_count}
                             initialIsReposted={post.is_reposted}
                             commentCount={commentCount}
+                            initialBookmarkCount={post.bookmark_count}
+                            initialIsBookmarked={post.is_bookmarked}
+                            initialBookmarkId={post.bookmark_id}
                         />
                     </div>
                 </div>

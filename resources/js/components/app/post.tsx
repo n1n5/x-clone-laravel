@@ -25,7 +25,7 @@ export function Post({ post }: PostProps) {
                 <PostAvatar user={displayPost.user} getImageSrc={getImageSrc} />
 
                 <div className="flex flex-1 flex-col gap-2">
-                    <PostHeader post={displayPost} isOwnProfile={isOwnProfile} />
+                    <PostHeader post={displayPost} isOwnProfile={isOwnProfile} isRepost={isRepost} />
 
                     <PostContent post={displayPost} getImageSrc={getImageSrc} />
 
@@ -63,7 +63,7 @@ function PostAvatar({ user, getImageSrc }: { user: PostType['user']; getImageSrc
     );
 }
 
-function PostHeader({ post, isOwnProfile }: { post: PostType; isOwnProfile: boolean }) {
+function PostHeader({ post, isOwnProfile, isRepost }: { post: PostType; isOwnProfile: boolean; isRepost: boolean }) {
     return (
         <div className="flex items-center justify-between gap-2">
             <Link href={route('post.show', { post: post.id })} className="flex-1">
@@ -73,7 +73,7 @@ function PostHeader({ post, isOwnProfile }: { post: PostType; isOwnProfile: bool
                     <span className="text-textCustom">{format(new Date(post.created_at), 'h:mm a MMM d, yyyy')}</span>
                 </div>
             </Link>
-            <PostInfo is_own_profile={isOwnProfile} postId={post.id} postBody={post.body || ''} />
+            <PostInfo is_own_profile={isOwnProfile} is_repost={isRepost} postId={post.id} postBody={post.body || ''} />
         </div>
     );
 }

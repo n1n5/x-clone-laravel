@@ -19,11 +19,12 @@ const userMenuList = [
 
 type PostInfoProps = {
     is_own_profile: boolean;
+    is_repost?: boolean;
     postId: number;
     postBody?: string;
 };
 
-export function PostInfo({ is_own_profile, postId, postBody }: PostInfoProps) {
+export function PostInfo({ is_own_profile, is_repost = false, postId, postBody }: PostInfoProps) {
     const [isOpen, setIsOpen] = useState(false);
     const [isDeleteOpen, setIsDeleteOpen] = useState(false);
     const [isDeleting, setIsDeleting] = useState(false);
@@ -92,7 +93,7 @@ export function PostInfo({ is_own_profile, postId, postBody }: PostInfoProps) {
 
     return (
         <>
-            {is_own_profile && (
+            {is_own_profile && !is_repost && (
                 <div className="relative inline-block text-left" ref={menuRef}>
                     <button onClick={() => setIsOpen((prev) => !prev)} className="cursor-pointer text-textDarkMode">
                         ...
