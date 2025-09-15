@@ -1,4 +1,4 @@
-# Laravel React Starter Kit
+# X Clone Laravel
 
 A modern social media application built with Laravel 12 and React 19, featuring a complete set of social networking capabilities including posts, comments, bookmarks, and user relationships.
 
@@ -32,8 +32,8 @@ A modern social media application built with Laravel 12 and React 19, featuring 
 1. Clone the repository:
 
 ```bash
-git clone https://github.com/your-username/laravel-react-starter.git
-cd laravel-react-starter
+git clone https://github.com/n1n5/x-clone-laravel.git
+cd x-clone-laravel
 ```
 
 2. Install PHP dependencies:
@@ -78,7 +78,7 @@ composer run dev
 Key environment variables in `.env`:
 
 ```ini
-APP_NAME="Laravel React Starter"
+APP_NAME="X Clone Laravel"
 APP_URL=http://localhost:8000
 
 DB_CONNECTION=sqlite
