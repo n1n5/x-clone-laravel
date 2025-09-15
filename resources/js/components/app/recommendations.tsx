@@ -71,8 +71,8 @@ function UserCard({ user, onFollow }: { user: User; onFollow: (userId: number) =
             <button
                 onClick={handleFollow}
                 disabled={isLoading || isFollowing}
-                className={`cursor-pointer rounded-full px-4 py-1 font-semibold ${
-                    isFollowing ? 'bg-textCustom text-textDarkMode' : 'bg-hoverCustom'
+                className={`cursor-pointer rounded-full px-4 py-1 font-semibold text-textDarkMode ${
+                    isFollowing ? 'bg-textCustom' : 'bg-hoverCustom'
                 }`}
             >
                 {isLoading ? 'Following...' : isFollowing ? 'Following' : 'Follow'}

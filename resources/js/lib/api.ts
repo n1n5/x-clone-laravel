@@ -171,6 +171,20 @@ export const getNonFollowedUsers = async (): Promise<User[]> => {
     }
 };
 
+// User search operation
+export const searchUsers = async (query: string, currentUserId?: number): Promise<User[]> => {
+    try {
+        let url = `/users/search?q=${encodeURIComponent(query)}`;
+        if (currentUserId) {
+            url += `&exclude=${currentUserId}`;
+        }
+        return await apiRequest('get', url);
+    } catch (error) {
+        console.error('Error searching users:', error);
+        throw error;
+    }
+};
+
 // Comment operations
 export const getComments = async (postId: number): Promise<PostComment[]> => {
     try {

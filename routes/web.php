@@ -8,6 +8,7 @@ use App\Http\Controllers\NonFollowedUsersController;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\PostReactionController;
 use App\Http\Controllers\ProfilePageController;
+use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -58,6 +59,7 @@ Route::prefix('api')->middleware('auth')->group(function () {
 
     Route::get('users/{user}/posts', [PostController::class, 'userPosts'])->name('api.users.posts');
     Route::get('non-followed-users', [NonFollowedUsersController::class, 'index'])->name('api.non-followed-users');
+    Route::get('users/search', [UserController::class, 'search'])->name('api.users.search');
     Route::post('follow', [FollowController::class, 'follow'])->name('api.follow');
     Route::post('unfollow', [FollowController::class, 'unfollow'])->name('api.unfollow');
 });

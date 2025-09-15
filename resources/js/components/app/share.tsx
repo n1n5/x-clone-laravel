@@ -5,19 +5,6 @@ import { router, useForm, usePage } from '@inertiajs/react';
 import { useState } from 'react';
 import { Avatar, AvatarImage } from './ui/avatar';
 
-const menuList = [
-    {
-        id: 1,
-        name: 'Tag',
-        icon: 'tag.svg',
-    },
-    {
-        id: 2,
-        name: 'Emoji',
-        icon: 'emoji.svg',
-    },
-];
-
 export function Share() {
     const { data, setData } = useForm<{
         body: string;
@@ -29,7 +16,6 @@ export function Share() {
     const [processing, setProcessing] = useState(false);
     const [errors, setErrors] = useState<Record<string, string | string[]>>({});
 
-    // Define minimal type for auth user
     type AuthUser = {
         avatar_path?: string | null;
     };
@@ -121,11 +107,6 @@ export function Share() {
                                     <img src="/icons/image.svg" alt="Image" width={20} height={20} />
                                 </div>
                             </label>
-                            {menuList.map((item) => (
-                                <button key={item.id} type="button" className="cursor-pointer" disabled={processing}>
-                                    <img src={`/icons/${item.icon}`} alt={item.name} width={20} height={20} />
-                                </button>
-                            ))}
                         </div>
                         <button
                             type="submit"
