@@ -121,7 +121,7 @@ QUEUE_CONNECTION=database
 ```
 ├── app
 │   ├── Http
-│   │   ├── Controllers   # All application controllers
+│   │   ├── Controllers   # Application controllers
 │   │   └── Middleware    # Custom middleware
 │   └── Models            # Eloquent models
 ├── config                # Configuration files
@@ -131,11 +131,12 @@ QUEUE_CONNECTION=database
 ├── public                # Publicly accessible assets
 ├── resources
 │   ├── js
-│   │   ├── components    # React components
+│   │   ├── components
+│   │   │   └── app       # React components
 │   │   ├── hooks         # Custom React hooks
 │   │   ├── layouts       # Application layouts
 │   │   ├── pages         # Page components
-│   │   └── lib           # Utility functions
+│   │   └── lib           # Utility/helper functions
 │   └── views             # Blade templates
 ├── routes                # Application routes
 └── tests                 # PHP tests
