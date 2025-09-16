@@ -26,6 +26,7 @@ A modern social media application built with Laravel 12 and React 19, featuring 
 - **Testing**: Pest PHP
 - **Linting**: ESLint + Prettier
 - **Type Checking**: TypeScript
+- **Local Email Testing**: Mailpit
 
 ## Installation
 
